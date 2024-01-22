@@ -1,3 +1,8 @@
+.application-fill           { fill: fb-cyan; }
+.app-gradient-background    { fill: fb-blue; }
+.foreground-fill            { fill: fb-white; }
+.background-fill            { fill: fb-black; }
+
 .defaultText {
   font-size: 32;
   font-family: System-Regular;
@@ -8,5 +13,10 @@
 #background {
   width: 100%;
   height: 100%;
-  fill: white;
+  fill: black;
+}
+
+.activity-icon {
+  fill: black;
+  opacity: 1;
 }

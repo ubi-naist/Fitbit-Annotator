@@ -1,3 +1,17 @@
 <svg>
-  <rect id="background" />
+  <defs>
+    <symbol id="activity-icon">
+      <section x="50%-36" y="50%-36" width="72" height="72" >
+        <circle id="circle" cx="50%" cy="50%" r="36" fill="red" />
+        <image id="icon" x="50%-24" y="50%-24" width="48" height="48"
+          class="activity-icon"
+          href="/mnt/assets/resources/icons/relaxing.png" />
+      </section>
+    </symbol>
+  </defs>
+  <use href="#app-gradient-background" class="app-gradient-background application-fill" apply-style="at-use">
+    <svg>
+      <use href="#activity-icon"></use>
+    </svg>
+  </use>
 </svg>
