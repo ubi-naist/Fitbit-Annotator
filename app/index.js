@@ -1,4 +1,11 @@
-console.log('Hello world!');
+import * as document from "document";
+
+let buttons = document.getElementsByClassName("large-button");
+buttons.forEach(element => {
+  element.addEventListener("click", (evt) => {
+    console.log(`${element.id} pressed`);
+  });
+});
 
 /*
   Buttons to include:

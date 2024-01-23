@@ -1,17 +1,34 @@
 <svg>
-  <defs>
-    <symbol id="activity-icon">
-      <section x="50%-36" y="50%-36" width="72" height="72" >
-        <circle id="circle" cx="50%" cy="50%" r="36" fill="red" />
-        <image id="icon" x="50%-24" y="50%-24" width="48" height="48"
-          class="activity-icon"
-          href="/mnt/assets/resources/icons/relaxing.png" />
-      </section>
-    </symbol>
-  </defs>
   <use href="#app-gradient-background" class="app-gradient-background application-fill" apply-style="at-use">
-    <svg>
-      <use href="#activity-icon"></use>
-    </svg>
+    <use href="#scrollview" y="18">
+
+      <use href="#scrollview-item" height="102">
+        <use id="laughing-button" href="#icon-button"
+          class="large-button application-fill laughing-button left-button" />
+        <use id="eating-button" href="#icon-button"
+          class="large-button application-fill eating-button middle-button" />
+        <use id="crying-button" href="#icon-button"
+          class="large-button application-fill crying-button right-button" />
+      </use>
+
+      <use href="#scrollview-item" height="102">
+        <use id="havingfun-button" href="#icon-button"
+          class="large-button application-fill havingfun-button left-button" />
+        <use id="relaxing-button" href="#icon-button"
+          class="large-button application-fill relaxing-button middle-button" />
+        <use id="vgame-button" href="#icon-button"
+          class="large-button application-fill vgame-button right-button" />
+      </use>
+
+      <use href="#scrollview-item" height="102">
+        <use id="walking-button" href="#icon-button"
+          class="large-button application-fill walking-button left-button" />
+        <use id="exercise-button" href="#icon-button"
+          class="large-button application-fill exercise-button middle-button" />
+        <use id="television-button" href="#icon-button"
+          class="large-button application-fill television-button right-button" />
+      </use>
+
+    </use>
   </use>
 </svg>
