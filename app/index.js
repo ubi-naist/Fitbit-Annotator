@@ -1,9 +1,44 @@
 import * as document from "document";
 
+class ActivityButton {
+  isActive = false;
+  activeIconColor = "#eeeeee";
+  imageElem;
+
+  constructor(elem, {isToggle} = {}) {
+    this.element = elem;
+    this.id = elem.id;
+    this.isToggle = isToggle || false;
+
+    this.imageElem = elem.getElementById('image');
+    this.originalIconColor = this.imageElem.style.fill;
+  }
+
+  toggle() {
+    this.isActive = !this.isActive;
+    this.imageElem.style.fill = this.isActive ?
+      this.activeIconColor:
+      this.originalIconColor;
+  }
+}
+buttons = {};
+
 let buttons = document.getElementsByClassName("large-button");
 buttons.forEach(element => {
+  switch (element.id) {
+    case 'eating-button':
+      buttons[element.id] = new ActivityButton(element, {isToggle: true,});
+      break;
+    default:
+      buttons[element.id] = new ActivityButton(element);
+      break;
+  }
   element.addEventListener("click", (evt) => {
-    console.log(`${element.id} pressed`);
+    const actButton = buttons[element.id];
+    if (actButton.isToggle) {
+      actButton.toggle();
+    }
+    console.log(`${element.id} pressed, isActive? ${actButton.isActive}`);
   });
 });
 
