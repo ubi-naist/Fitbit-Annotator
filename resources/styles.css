@@ -25,6 +25,9 @@
 .laughing-button #image {
   href: "/mnt/assets/resources/icons/laughing.png";
 }
+.laughing-button #tpl_text {
+  text-buffer: _laughing_icon;
+}
 .eating-button #image {
   href: "/mnt/assets/resources/icons/eating.png";
 }
@@ -48,4 +51,11 @@
 }
 .television-button #image {
   href: "/mnt/assets/resources/icons/television.png";
+}
+.anxious-button #image {
+  href: "/mnt/assets/resources/icons/anxious.png";
+}
+#anxious_text {
+  text-buffer: _anxious_icon;
+  fill: black;
 }
