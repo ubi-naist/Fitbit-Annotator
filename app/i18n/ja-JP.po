@@ -1,0 +1,35 @@
+msgid "excercise_icon"
+msgstr "運動"
+
+msgid "family_icon"
+msgstr "大切な方と"
+
+msgid "vgame_icon"
+msgstr "ゲーム"
+
+msgid "working_icon"
+msgstr "仕事"
+
+msgid "television_icon"
+msgstr "観る"
+
+msgid "crying_icon"
+msgstr "悲しい"
+
+msgid "laughing_icon"
+msgstr "楽しい"
+
+msgid "anxious_icon"
+msgstr "苦しい"
+
+msgid "havingfun_icon"
+msgstr "盛り上がる"
+
+msgid "eating_icon"
+msgstr "飲食"
+
+msgid "walking_icon"
+msgstr "歩く"
+
+msgid "relaxing_icon"
+msgstr "リラックス"

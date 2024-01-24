@@ -1,0 +1,35 @@
+msgid "excercise_icon"
+msgstr "Ejercicio"
+
+msgid "family_icon"
+msgstr "Con gente"
+
+msgid "vgame_icon"
+msgstr "Vjuego"
+
+msgid "working_icon"
+msgstr "Trabajo"
+
+msgid "television_icon"
+msgstr "Viendo"
+
+msgid "crying_icon"
+msgstr "Triste"
+
+msgid "laughing_icon"
+msgstr "Diversión"
+
+msgid "anxious_icon"
+msgstr "Estrés"
+
+msgid "havingfun_icon"
+msgstr "Fiesta"
+
+msgid "eating_icon"
+msgstr "Comer"
+
+msgid "walking_icon"
+msgstr "Caminar"
+
+msgid "relaxing_icon"
+msgstr "Relajado"
