@@ -22,40 +22,8 @@
   x: 222;
   y: 0;
 }
-.laughing-button #image {
-  href: "/mnt/assets/resources/icons/laughing.png";
-}
-.laughing-button #tpl_text {
-  text-buffer: _laughing_icon;
-}
-.eating-button #image {
-  href: "/mnt/assets/resources/icons/eating.png";
-}
-.crying-button #image {
-  href: "/mnt/assets/resources/icons/crying.png";
-}
-.havingfun-button #image {
-  href: "/mnt/assets/resources/icons/havingfun.png";
-}
-.relaxing-button #image {
-  href: "/mnt/assets/resources/icons/relaxing.png";
-}
-.vgame-button #image {
-  href: "/mnt/assets/resources/icons/vgame.png";
-}
-.walking-button #image {
-  href: "/mnt/assets/resources/icons/walking.png";
-}
-.exercise-button #image {
-  href: "/mnt/assets/resources/icons/exercise.png";
-}
-.television-button #image {
-  href: "/mnt/assets/resources/icons/television.png";
-}
-.anxious-button #image {
-  href: "/mnt/assets/resources/icons/anxious.png";
-}
-#anxious_text {
-  text-buffer: _anxious_icon;
+
+.actbutton-section #image {
   fill: black;
+  opacity: 1;
 }

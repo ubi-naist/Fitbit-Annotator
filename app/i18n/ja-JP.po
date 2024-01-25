@@ -1,4 +1,4 @@
-msgid "excercise_icon"
+msgid "exercise_icon"
 msgstr "運動"
 
 msgid "family_icon"

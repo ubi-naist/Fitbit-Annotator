@@ -1,48 +1,23 @@
 <svg>
-  <defs>
-    <symbol id="activity-button">
-      <section width="96" height="96">
-        <use id="tpl_button" href="#icon-button" />
-        <text id="tpl_text" text-anchor="middle" x="48" y="72">text</text>
-      </section>
-    </symbol>
-  </defs>
   <use href="#app-gradient-background" class="app-gradient-background application-fill" apply-style="at-use">
     <use href="#scrollview" y="18">
 
       <use href="#scrollview-item" height="102">
-        <use id="laughing-button" href="#icon-button"
-          class="large-button application-fill laughing-button left-button" />
-        <text text-anchor="middle" x="66" y="72">_laughing_icon</text>
-        <use id="eating-button" href="#icon-button"
-          class="large-button application-fill eating-button middle-button" />
-        <use id="crying-button" href="#icon-button"
-          class="large-button application-fill crying-button right-button" />
+        <use id="working-button" href="#activity-button" class="left-button" />
+        <use id="eating-button" href="#activity-button" class="middle-button" />
+        <use id="crying-button" href="#activity-button" class="right-button" />
       </use>
 
       <use href="#scrollview-item" height="102">
-        <use id="anxious-button" href="#activity-button">
-          <set href="#tpl_button" attributeName="class" to="large-button application-full anxious-button middle-button" />
-          <set href="#tpl_text" attributeName="id" to="anxious_text" />
-        </use>
+        <use id="havingfun-button" href="#activity-button" class="left-button" />
+        <use id="relaxing-button" href="#activity-button" class="middle-button" />
+        <use id="vgame-button" href="#activity-button" class="right-button" />
       </use>
 
       <use href="#scrollview-item" height="102">
-        <use id="havingfun-button" href="#icon-button"
-          class="large-button application-fill havingfun-button left-button" />
-        <use id="relaxing-button" href="#icon-button"
-          class="large-button application-fill relaxing-button middle-button" />
-        <use id="vgame-button" href="#icon-button"
-          class="large-button application-fill vgame-button right-button" />
-      </use>
-
-      <use href="#scrollview-item" height="102">
-        <use id="walking-button" href="#icon-button"
-          class="large-button application-fill walking-button left-button" />
-        <use id="exercise-button" href="#icon-button"
-          class="large-button application-fill exercise-button middle-button" />
-        <use id="television-button" href="#icon-button"
-          class="large-button application-fill television-button right-button" />
+        <use id="walking-button" href="#activity-button" class="left-button" />
+        <use id="exercise-button" href="#activity-button" class="middle-button" />
+        <use id="television-button" href="#activity-button" class="right-button" />
       </use>
 
     </use>

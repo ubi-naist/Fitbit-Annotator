@@ -1,11 +1,11 @@
-msgid "excercise_icon"
+msgid "exercise_icon"
 msgstr "Exercise"
 
 msgid "family_icon"
 msgstr "People"
 
 msgid "vgame_icon"
-msgstr "VideoGames"
+msgstr "VideoGame"
 
 msgid "working_icon"
 msgstr "Work"

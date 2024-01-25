@@ -5,5 +5,16 @@
     <link rel="import" href="/mnt/sysassets/widgets/icon_button.defs" />
     <link rel="import" href="/mnt/sysassets/widgets/baseview_widget.defs" />
     <link rel="import" href="/mnt/sysassets/widgets/scrollview_widget.defs" />
+    <symbol id="activity-button">
+      <section class="actbutton-section" width="96" height="96">
+        <circle id="circle" cx="50%" cy="50%" r="48"
+          class="application-fill" pointer-events="visible" />
+        <circle id="shadow" cx="50%" cy="50%" r="48"
+          fill="black" opacity="0.6" visibility="hidden" />
+        <image id="image" x="50%-24" y="50%-30" width="48" height="48" />
+        <text id="text" x="50%" y="82" text-anchor="middle" text-length="10"
+          fill="black" font-size="14" font-weight="bold" />
+      </section>
+    </symbol>
   </defs>
 </svg>
