@@ -5,21 +5,40 @@
       <use href="#scrollview-item" height="102">
         <use id="working-button" href="#activity-button" class="left-button" />
         <use id="eating-button" href="#activity-button" class="middle-button" />
-        <use id="crying-button" href="#activity-button" class="right-button" />
+        <use href="#scroll-texture" class="right-button" />
       </use>
 
       <use href="#scrollview-item" height="102">
         <use id="havingfun-button" href="#activity-button" class="left-button" />
         <use id="relaxing-button" href="#activity-button" class="middle-button" />
-        <use id="vgame-button" href="#activity-button" class="right-button" />
+        <use href="#scroll-texture" class="right-button" />
       </use>
 
       <use href="#scrollview-item" height="102">
         <use id="walking-button" href="#activity-button" class="left-button" />
         <use id="exercise-button" href="#activity-button" class="middle-button" />
-        <use id="television-button" href="#activity-button" class="right-button" />
+        <use href="#scroll-texture" class="right-button" />
       </use>
 
+      <use href="#scrollview-item" height="102">
+        <use id="anxious-button" href="#activity-button" class="left-button" />
+        <use id="family-button" href="#activity-button" class="middle-button" />
+        <use href="#scroll-texture" class="right-button" />
+      </use>
+
+      <use href="#scrollview-item" height="102">
+        <use id="crying-button" href="#activity-button" class="left-button" />
+        <use id="vgame-button" href="#activity-button" class="middle-button" />
+        <use href="#scroll-texture" class="right-button" />
+      </use>
+
+      <use href="#scrollview-item" height="102">
+        <use id="television-button" href="#activity-button" class="left-button" />
+        <use id="laughing-button" href="#activity-button" class="middle-button" />
+        <use href="#scroll-texture" class="right-button" />
+      </use>
+
+      <use href="#scrollview-item" height="40" />
     </use>
   </use>
 </svg>

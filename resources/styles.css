@@ -27,3 +27,9 @@
   fill: black;
   opacity: 1;
 }
+
+.scroll-texture line {
+  stroke-width: 3;
+  stroke-linecap: round;
+  opacity: 0.7;
+}

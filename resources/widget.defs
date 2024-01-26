@@ -16,5 +16,12 @@
           fill="black" font-size="14" font-weight="bold" />
       </section>
     </symbol>
+    <symbol id="scroll-texture">
+      <section class="scroll-texture application-fill" width="96" height="96">
+        <line x1="25%" y1="16" x2="75%" y2="16" />
+        <line x1="25%" y1="48" x2="75%" y2="48" />
+        <line x1="25%" y1="80" x2="75%" y2="80" />
+      </section>
+    </symbol>
   </defs>
 </svg>
