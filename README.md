@@ -1,6 +1,9 @@
 # Fitbit-Annotator
 
-Event Annotator for Fitbit Sense 2
+Event Annotator for Fitbit Sense 2.
+
+Currently (2024-01-29), there's no official SDK available to sideload applications to Fitbit's Sense2 or Versa4 smartwatches. But this code may be used for older and compatible Fitbit OS' smartwatches.
+-------------------------------------------------
 
 Activity and emotional annotator for Fitbit devices.
 
