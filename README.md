@@ -27,3 +27,5 @@ Progress:
   - [ ] Activity annotation logging (actions of the buttons)
     - [ ] Corresponding instant data
   - [ ] Smartphone data export ("companion" code)
+
+Inquiries: sergio.de.leon@ ubilab's domain .com
