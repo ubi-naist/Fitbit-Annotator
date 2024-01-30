@@ -28,4 +28,23 @@ Progress:
     - [ ] Corresponding instant data
   - [ ] Smartphone data export ("companion" code)
 
+## Icons
+
+The icons are grayscale versions from the 128x128 png drawings of [Google's Open Source "Noto Emoji" font](https://github.com/googlefonts/noto-emoji).
+
+If you want to create new buttons using Noto Emoji emoticons, you have to convert the original png's to 8-bit grayscale png images. This will allow the transparency/colorizing functionality shown in the app.
+
+Using the imagemagick library and terminal application `convert` you can easily convert them with the following command:
+
+```bash
+    # To convert only one image
+    convert original.png -colorspace gray -resize 72 new.png
+
+    # To convert all images in one directory
+    mkdir 72px  # creating output directory
+    find . -iname '*.png' -exec bash -c 'convert "{}" -colorspace gray -resize 72 "./72px/{}"' \;  # find all png images and executing convert on each of them
+```
+
+## Contact
+
 Inquiries: sergio.de.leon@ ubilab's domain .com
