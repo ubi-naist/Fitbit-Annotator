@@ -1,13 +1,12 @@
 # Fitbit-Annotator
 
-Event Annotator for Fitbit Sense 2.
+Event Annotator for Fitbit Sense 2 and Versa 4.
 
-Currently (2024-01-29), there's no official SDK available to sideload applications to Fitbit's Sense2 or Versa4 smartwatches. But this code may be used for older and compatible Fitbit OS' smartwatches.
--------------------------------------------------
+***SDK-toolchain(7.2.0) and SDK-cli(1.8.0) master versions are now compatible with Versa 4 and Sense 2 devices.***
 
 Activity and emotional annotator for Fitbit devices.
 
-Main application fill color will show toggleable activities; activities that have a known start and end time.
+The main application fill color is used to show toggleable activities, i.e. activities that have a known start and end time.
 
 Secondary application fill color is set for buttons that log out time ambiguous states like emotions (e.g. to log out a moment when the user feels happy or sad).
 
@@ -32,7 +31,7 @@ Progress:
 
 The icons are grayscale versions from the 128x128 png drawings of [Google's Open Source "Noto Emoji" font](https://github.com/googlefonts/noto-emoji).
 
-If you want to create new buttons using Noto Emoji emoticons, you have to convert the original png's to 8-bit grayscale png images. This will allow the transparency/colorizing functionality shown in the app.
+If you want to create new buttons using Noto Emoji emoticons, you must convert the original PNG icons to 8-bit grayscale png images. This will allow the transparency/colorizing functionality shown in the app.
 
 Using the imagemagick library and terminal application `convert` you can easily convert them with the following command:
 
