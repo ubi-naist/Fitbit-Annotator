@@ -81,7 +81,7 @@ class SensorLogger {
     this.freq = freq || this.freq;
     this.batch = batch || this.batch;
 
-    const isIterable = sensors && (typeof sensors.forEach === "function");
+    const isIterable = sensors && typeof sensors.forEach === "function";
     if (isIterable) {
       sensors.forEach((type) => {
         this.sensors.append(type, this.freq, this.batch);
@@ -110,9 +110,10 @@ class SensorLogger {
       return;
     }
 
-    const typeMatches = (sensor) => sensor.type == type;
-    if (this.sensors.some(typeMatches)) {
+    if (this.sensors.some((sensor) => sensor.type == type)) {
       this.sensors.append(type, freq, batch);
+    } else {
+      console.error(`Sensor "${type}" is not implemented, cannot be enabled.`);
     }
   }
 
@@ -138,29 +139,18 @@ class SensorLogger {
       );
       return;
     }
-    let anyStarted = false;
-    this.sensors.forEach((sensor) => {
-      if (sensors.length > 0 && sensors.indexOf(sensor.type) === -1) {
-        // this sensor is not in the list parameter <sensors>
-        return;
-      }
-      sensor.start();
-      anyStarted = true;
-    });
-    if (anyStarted) {
-      this.startWatchdog();
-    }
+
     let activeSensors = Array(this.sensors.length);
-    // Adapt to stop() version, to always check status of all sensors and avoid multiple watchdogs
     for (let i = 0; i < this.sensors.length; i++) {
       let curSensor = this.sensors[i];
       if (sensors.length < 1 || sensors.indexOf(curSensor.type) !== -1) {
-        curSensor.stop();
-      }
+        // It should start current sensor if 1. <sensors> is not defined 2. the sensor was defined in <sensors>
+        curSensor.start();
+      } // it won't start the sensor if <sensors> is defined AND this sensor is not defined in <sensors>
       activeSensors[i] = curSensor.isActive;
     }
-    if (activeSensors.every(elem => elem === false)) {
-      this.stopWatchdog();
+    if (activeSensors.some((elem) => elem === true)) {
+      this.startWatchdog();
     }
   }
 
@@ -169,12 +159,12 @@ class SensorLogger {
     for (let i = 0; i < this.sensors.length; i++) {
       let curSensor = this.sensors[i];
       if (sensors.length < 1 || sensors.indexOf(curSensor.type) !== -1) {
+        // It should stop current sensor if 1. <sensors> is not defined 2. the sensor was defined in <sensors>
         curSensor.stop();
-        // THIS IS WRONG
-      }
+      } // it won't stop the sensor if <sensors> is defined AND this sensor is not defined in <sensors>
       activeSensors[i] = curSensor.isActive;
     }
-    if (activeSensors.every(elem => elem === false)) {
+    if (activeSensors.every((elem) => elem === false)) {
       this.stopWatchdog();
     }
   }
@@ -186,10 +176,14 @@ class SensorLogger {
     if (this.notEnoughEnergy) {
       this.stop();
     }
+    this.watchdogTimer = undefined;
     this.startWatchdog();
   }
 
   startWatchdog() {
+    if (this.watchdogTimer) {
+      clearTimeout(this.watchdogTimer);
+    }
     this.watchdogTimer = setTimeout(
       this.watchdogHandle,
       this.watchdogTimeLimit
@@ -200,6 +194,7 @@ class SensorLogger {
   stopWatchdog() {
     if (this.watchdogTimer) {
       clearTimeout(this.watchdogTimer);
+      this.watchdogTimer = undefined;
       console.debug(`Watchdog stopped`);
     }
   }
