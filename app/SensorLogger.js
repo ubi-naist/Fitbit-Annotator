@@ -80,10 +80,16 @@ class SensorLogger {
     this.freq = freq || this.freq;
     this.batch = batch || this.batch;
 
-    if (Symbol.iterator in Object(sensors)) {
+    const isIterable = sensors && (typeof sensors.forEach === "function");
+    if (isIterable) {
       sensors.forEach((type) => {
         this.sensors.append(type, this.freq, this.batch);
       });
+    } else {
+      // Load all available sensors
+      Sensor.availableSensors.forEach((cls, sensorType) => {
+        this.sensors.append(sensorType, this.freq, this.batch);
+      }); 
     }
   }
 
@@ -131,17 +137,24 @@ class SensorLogger {
       );
       return;
     }
+    let anyStarted = false;
     this.sensors.forEach((sensor) => {
       if (sensors.length > 0 && sensors.indexOf(sensor.type) === -1) {
         // this sensor is not in the list parameter <sensors>
         return;
       }
       sensor.start();
+      anyStarted = true;
     });
+    if (anyStarted) {
+      this.startWatchdog();
+    }
   }
 
   stop(sensors = []) {
+    let stoppedSensors = Array(this.sensors.length).fill(true);
     this.sensors.forEach((sensor) => {
+      stoppedSensors[]
       if (sensors.length > 0 && sensors.indexOf(sensor.type) === -1) {
         // this sensor is not in the list parameter <sensors>
         return;
