@@ -23,8 +23,8 @@ class Sensor {
     if (this.availableSensors.has(type)) {
       throw new TypeError(`"${type}" sensor is not implemented`);
     }
-    const constructor = this.availableSensors.get(type);
-    this.device = new constructor({
+    const builder = this.availableSensors.get(type);
+    this.device = new builder({
       frequency: this.freq,
       batch: this.batch,
     });
@@ -79,9 +79,12 @@ class SensorLogger {
   constructor({ freq, batch, sensors } = {}) {
     this.freq = freq || this.freq;
     this.batch = batch || this.batch;
-    sensors.forEach((type) => {
-      this.sensors.append(type, this.freq, this.batch);
-    });
+
+    if (Symbol.iterator in Object(sensors)) {
+      sensors.forEach((type) => {
+        this.sensors.append(type, this.freq, this.batch);
+      });
+    }
   }
 
   get notEnoughEnergy() {
@@ -100,13 +103,8 @@ class SensorLogger {
       return;
     }
 
-    let add = false;
-    this.sensors.forEach((sensor) => {
-      if (sensor.type == type) {
-        add = true;
-      }
-    });
-    if (add) {
+    const typeMatches = (sensor) => sensor.type == type;
+    if (this.sensors.some(typeMatches)) {
       this.sensors.append(type, freq, batch);
     }
   }
@@ -114,15 +112,15 @@ class SensorLogger {
   disableSensor(type) {
     type = type.toLowerCase().trim();
     let indexToRemove = null;
-    for(let i = 0; i < this.sensors.length; i++) {
-        if (this.sensors[i].type == type) {
-            indexToRemove = i;
-            break;
-        }
+    for (let i = 0; i < this.sensors.length; i++) {
+      if (this.sensors[i].type == type) {
+        indexToRemove = i;
+        break;
+      }
     }
     if (indexToRemove !== null) {
-        this.sensors[indexToRemove].stop();
-        this.sensors.splice(indexToRemove, 1);
+      this.sensors[indexToRemove].stop();
+      this.sensors.splice(indexToRemove, 1);
     }
   }
 
