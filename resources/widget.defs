@@ -2,7 +2,6 @@
   <defs>
     <link rel="stylesheet" href="styles.css" />
     <link rel="import" href="/mnt/sysassets/system_widget.defs" />
-    <link rel="import" href="/mnt/sysassets/widgets/icon_button.defs" />
     <link rel="import" href="/mnt/sysassets/widgets/baseview_widget.defs" />
     <link rel="import" href="/mnt/sysassets/widgets/scrollview_widget.defs" />
     <symbol id="activity-button">
@@ -21,6 +20,21 @@
         <line x1="25%" y1="16" x2="75%" y2="16" />
         <line x1="25%" y1="48" x2="75%" y2="48" />
         <line x1="25%" y1="80" x2="75%" y2="80" />
+      </section>
+    </symbol>
+    <symbol id="toggle-icon-button">
+      <section class="toggbutton-section" width="192" height="96">
+        <rect id="rectangle" x="0" y="5%" width="100%" height="90%"
+          class="application-fill" pointer-events="visible" />
+        <rect id="shadow" x="0" y="5%" width="100%" height="90%"
+          fill="black" opacity="0.6" visibility="hidden" />
+        <section x="16" y="50%-24" width="48" height="48">
+          <circle id="record-icon" cx="50%" cy="50%" r="24" class="record-texture" />
+          <line id="pause-l1" x1="25%" y1="3%" x2="25%" y2="97%" class="pause-texture" />
+          <line id="pause-l2" x1="75%" y1="3%" x2="75%" y2="97%" class="pause-texture" />
+        </section>
+        <text id="text" x="66%" y="44%" text-length="10">Start</text>
+        <text id="text" x="66%" y="72%" text-length="10">Recording</text>
       </section>
     </symbol>
   </defs>

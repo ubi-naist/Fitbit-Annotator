@@ -3,6 +3,11 @@
     <use href="#scrollview" y="18">
 
       <use href="#scrollview-item" height="102">
+        <use id="record-button" href="#toggle-icon-button" class="left-margin" />
+        <use href="#scroll-texture" class="right-button" />
+      </use>
+
+      <use href="#scrollview-item" height="102">
         <use id="working-button" href="#activity-button" class="left-button" />
         <use id="eating-button" href="#activity-button" class="middle-button" />
         <use href="#scroll-texture" class="right-button" />
