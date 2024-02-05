@@ -36,6 +36,7 @@ class Sensor {
   }
 
   start = () => this.device.start();
+  stop = () => this.device.stop();
 
   accelerometerEvent() {
     const r = this.device.readings;
@@ -89,7 +90,7 @@ class SensorLogger {
       // Load all available sensors
       Sensor.availableSensors.forEach((cls, sensorType) => {
         this.sensors.append(sensorType, this.freq, this.batch);
-      }); 
+      });
     }
   }
 
@@ -149,18 +150,33 @@ class SensorLogger {
     if (anyStarted) {
       this.startWatchdog();
     }
+    let activeSensors = Array(this.sensors.length);
+    // Adapt to stop() version, to always check status of all sensors and avoid multiple watchdogs
+    for (let i = 0; i < this.sensors.length; i++) {
+      let curSensor = this.sensors[i];
+      if (sensors.length < 1 || sensors.indexOf(curSensor.type) !== -1) {
+        curSensor.stop();
+      }
+      activeSensors[i] = curSensor.isActive;
+    }
+    if (activeSensors.every(elem => elem === false)) {
+      this.stopWatchdog();
+    }
   }
 
   stop(sensors = []) {
-    let stoppedSensors = Array(this.sensors.length).fill(true);
-    this.sensors.forEach((sensor) => {
-      stoppedSensors[]
-      if (sensors.length > 0 && sensors.indexOf(sensor.type) === -1) {
-        // this sensor is not in the list parameter <sensors>
-        return;
+    let activeSensors = Array(this.sensors.length);
+    for (let i = 0; i < this.sensors.length; i++) {
+      let curSensor = this.sensors[i];
+      if (sensors.length < 1 || sensors.indexOf(curSensor.type) !== -1) {
+        curSensor.stop();
+        // THIS IS WRONG
       }
-      sensor.stop();
-    });
+      activeSensors[i] = curSensor.isActive;
+    }
+    if (activeSensors.every(elem => elem === false)) {
+      this.stopWatchdog();
+    }
   }
 
   // Stops SensorLogger in case battery is less than <this.minBatteryLevel>
@@ -178,11 +194,13 @@ class SensorLogger {
       this.watchdogHandle,
       this.watchdogTimeLimit
     );
+    console.debug(`Watchdog started`);
   }
 
   stopWatchdog() {
     if (this.watchdogTimer) {
       clearTimeout(this.watchdogTimer);
+      console.debug(`Watchdog stopped`);
     }
   }
 }
