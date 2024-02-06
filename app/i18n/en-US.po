@@ -33,3 +33,15 @@ msgstr "Walk"
 
 msgid "relaxing_icon"
 msgstr "Relaxed"
+
+msgid "record_inactive_l1"
+msgstr "Start"
+
+msgid "record_inactive_l2"
+msgstr "Recording"
+
+msgid "record_active_l1"
+msgstr "Stop"
+
+msgid "record_active_l2"
+msgstr "Recording"

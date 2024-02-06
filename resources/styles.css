@@ -38,7 +38,7 @@
   opacity: 0.7;
 }
 
-.toggbutton-section #text {
+.toggbutton-section text {
   text-anchor: middle;
   fill: black;
   font-size: 24;
@@ -55,4 +55,10 @@
   stroke-linecap: round;
   fill: fb-dark-gray;
   visibility: visible;
+}
+
+.stop-texture {
+  fill: fb-light-gray;
+  visibility: hidden;
+  opacity: 1;
 }

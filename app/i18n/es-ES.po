@@ -33,3 +33,15 @@ msgstr "Caminar"
 
 msgid "relaxing_icon"
 msgstr "Relajado"
+
+msgid "record_inactive_l1"
+msgstr "Empezar"
+
+msgid "record_inactive_l2"
+msgstr "Grabación"
+
+msgid "record_active_l1"
+msgstr "Detener"
+
+msgid "record_active_l2"
+msgstr "Grabación"

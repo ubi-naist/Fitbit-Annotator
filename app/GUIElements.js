@@ -70,4 +70,58 @@ class ActivityButton
   }
 }
 
-export { ActivityButton, toggleActivities };
+class WideToggleButton
+{
+  isActive = false;
+  type = "";
+
+  constructor(elem, type) {
+    this.element = elem;
+    this.type = type;
+
+    this.id = elem.id;
+    this.rectElem = elem.children[0].children[0];
+    this.shadowElem = elem.children[0].children[1];
+    this.recordIcon = elem.children[0].children[2].children[0];
+    this.stopIcon = elem.children[0].children[2].children[1];
+    this.textL1Elem = elem.children[0].children[3];
+    this.textL2Elem = elem.children[0].children[4];
+
+    this.setStyles(false);
+    this.setEvents();
+  }
+
+  setStyles(isActive) {
+    if (isActive) {
+      this.shadowElem.style.visibility = "visible";
+      this.recordIcon.style.visibility = "hidden";
+      this.stopIcon.style.visibility = "visible";
+      this.textL1Elem.text = gettext(`${this.type}_active_l1`);
+      this.textL1Elem.style.fill = "white";
+      this.textL2Elem.text = gettext(`${this.type}_active_l2`);
+      this.textL2Elem.style.fill = "white";
+    } else {
+      this.shadowElem.style.visibility = "hidden";
+      this.recordIcon.style.visibility = "visible";
+      this.stopIcon.style.visibility = "hidden";
+      this.textL1Elem.text = gettext(`${this.type}_inactive_l1`);
+      this.textL1Elem.style.fill = "black";
+      this.textL2Elem.text = gettext(`${this.type}_inactive_l2`);
+      this.textL2Elem.style.fill = "black";
+    }
+  }
+
+  toggle() {
+    this.isActive = !this.isActive;
+    this.setStyles(this.isActive);
+  }
+
+  setEvents() {
+    this.rectElem.addEventListener('mousedown', (_) => {
+      this.toggle();
+      console.log(`Toggle ${this.type} pressed, Active? ${this.isActive}`);
+    });
+  }
+}
+
+export { ActivityButton, toggleActivities, WideToggleButton };
