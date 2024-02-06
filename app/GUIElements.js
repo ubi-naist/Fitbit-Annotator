@@ -1,9 +1,11 @@
 import { gettext } from "i18n";
+import { SensorLogger } from "./SensorLogger";
 
 const toggleActivities = [
   "exercise", "family", "vgame", "working", "television",
   "eating", "walking",
 ];
+const sensorLogger = new SensorLogger({ sensors: [] });
 
 class ActivityButton
 {
@@ -88,7 +90,7 @@ class WideToggleButton
     this.textL2Elem = elem.children[0].children[4];
 
     this.setStyles(false);
-    this.setEvents();
+    this.setEvents(type);
   }
 
   setStyles(isActive) {
@@ -116,11 +118,30 @@ class WideToggleButton
     this.setStyles(this.isActive);
   }
 
-  setEvents() {
-    this.rectElem.addEventListener('mousedown', (_) => {
-      this.toggle();
-      console.log(`Toggle ${this.type} pressed, Active? ${this.isActive}`);
-    });
+  setEvents(type) {
+    let rectEvent = undefined;
+    switch(type) {
+      case "record":
+        rectEvent = (_) => {
+          this.toggle();
+          if (this.isActive) {
+            sensorLogger.enableSensor("heartbeat", 1, 5);
+            sensorLogger.start();
+            console.debug(`Sensor logger activated`);
+          } else {
+            sensorLogger.stop();
+            console.debug(`Sensor logger deactivated`);
+          }
+        };
+        break;
+      default:
+        rectEvent = (_) => {
+          this.toggle();
+          console.log(`Toggle ${this.type} pressed, Active? ${this.isActive}`);
+        };
+        break;
+    }
+    this.rectElem.addEventListener('mousedown', rectEvent);
   }
 }
 

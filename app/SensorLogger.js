@@ -84,12 +84,16 @@ class SensorLogger {
     const isIterable = sensors && typeof sensors.forEach === "function";
     if (isIterable) {
       sensors.forEach((type) => {
-        this.sensors.append(type, this.freq, this.batch);
+        this.sensors.append(
+          new Sensor(type, this.freq, this.batch)
+        );
       });
     } else {
       // Load all available sensors
-      Sensor.availableSensors.forEach((cls, sensorType) => {
-        this.sensors.append(sensorType, this.freq, this.batch);
+      Sensor.availableSensors.forEach((_, sensorType) => {
+        this.sensors.append(
+          new Sensor(sensorType, this.freq, this.batch)
+        );
       });
     }
   }
@@ -103,6 +107,11 @@ class SensorLogger {
     freq = freq || this.freq;
     batch = batch || this.batch;
 
+    if (this.sensors.some((sensor) => sensor.type == type)) {
+      console.debug(`Sensor ${type} already enabled`);
+      return;
+    }
+
     if (this.notEnoughEnergy) {
       console.warn(
         "SensorLogger not started, battery low: " + batt.chargeLevel
@@ -110,9 +119,16 @@ class SensorLogger {
       return;
     }
 
-    if (this.sensors.some((sensor) => sensor.type == type)) {
-      this.sensors.append(type, freq, batch);
-    } else {
+    let added = false;
+    Sensor.availableSensors.forEach((_, sensorType) => {
+      if (sensorType == type) {
+        this.sensors.append(
+          new Sensor(type, freq, batch)
+        );
+        added = true;
+      }
+    });
+    if (!added) {
       console.error(`Sensor "${type}" is not implemented, cannot be enabled.`);
     }
   }
