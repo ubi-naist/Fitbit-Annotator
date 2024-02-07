@@ -1,5 +1,5 @@
 import { gettext } from "i18n";
-import { SensorLogger } from "./SensorLogger";
+import { Sensor, SensorLogger } from "./SensorLogger";
 
 const toggleActivities = [
   "exercise", "family", "vgame", "working", "television",
@@ -125,12 +125,12 @@ class WideToggleButton
         rectEvent = (_) => {
           this.toggle();
           if (this.isActive) {
-            sensorLogger.enableSensor("heartbeat", 1, 5);
+            sensorLogger.enableSensor("heartrate", 1, 5);
             sensorLogger.start();
-            console.debug(`Sensor logger activated`);
+            console.log(`Sensor logger activated`);
           } else {
             sensorLogger.stop();
-            console.debug(`Sensor logger deactivated`);
+            console.log(`Sensor logger deactivated`);
           }
         };
         break;

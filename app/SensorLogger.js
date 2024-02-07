@@ -1,7 +1,7 @@
-import { batt } from "power";
+import { battery as batt } from "power";
 import { Accelerometer } from "accelerometer";
 import { Gyroscope } from "gyroscope";
-import { HearRateSensor } from "heart-rate";
+import { HeartRateSensor } from "heart-rate";
 
 class Sensor {
   type = null;
@@ -9,21 +9,21 @@ class Sensor {
   freq = 5; // hertz
   batch = 150; // samples to get batched per triggered event
   zeroPadding = 3;
-  availableSensors = new Map([
-    ["accelerometer", Accelerometer],
-    ["gyroscope", Gyroscope],
-    ["heartrate", HearRateSensor],
-  ]);
+  static availableSensors = {
+    accelerometer: Accelerometer,
+    gyroscope: Gyroscope,
+    heartrate: HeartRateSensor,
+  };
 
   constructor(type, freq, batch) {
     this.freq = freq || this.freq;
     this.batch = batch || this.batch;
     type = type.toLowerCase().trim();
 
-    if (this.availableSensors.has(type)) {
+    if (Object.keys(Sensor.availableSensors).indexOf(type) === -1) {
       throw new TypeError(`"${type}" sensor is not implemented`);
     }
-    const builder = this.availableSensors.get(type);
+    const builder = Sensor.availableSensors[type];
     this.device = new builder({
       frequency: this.freq,
       batch: this.batch,
@@ -75,11 +75,11 @@ class SensorLogger {
   minBatteryLevel = 20;
   watchdogTimeLimit = 1 * 60 * 1000; // milliseconds
   watchdogTimer = null;
-  sensors = [];
 
   constructor({ freq, batch, sensors } = {}) {
     this.freq = freq || this.freq;
     this.batch = batch || this.batch;
+    this.sensors = [];
 
     const isIterable = sensors && typeof sensors.forEach === "function";
     if (isIterable) {
@@ -90,9 +90,9 @@ class SensorLogger {
       });
     } else {
       // Load all available sensors
-      Sensor.availableSensors.forEach((_, sensorType) => {
+      Object.keys(Sensor.availableSensors).forEach((type) => {
         this.sensors.append(
-          new Sensor(sensorType, this.freq, this.batch)
+          new Sensor(type, this.freq, this.batch)
         );
       });
     }
@@ -103,32 +103,37 @@ class SensorLogger {
   }
 
   enableSensor(type, freq = null, batch = null) {
-    type = type.toLowerCase().trim();
-    freq = freq || this.freq;
-    batch = batch || this.batch;
+    //type = type.toLowerCase().trim();
+    //freq = freq || this.freq;
+    //batch = batch || this.batch;
 
-    if (this.sensors.some((sensor) => sensor.type == type)) {
-      console.debug(`Sensor ${type} already enabled`);
+    let isAlreadyAdded = false;
+    let notEnoughEnergy = this.notEnoughEnergy;
+    // Incomplete implementation of ES6 is not allowing me to use simpler expressions.
+    //for (let i = 0; i < this.sensors.length; i++) {
+    //  if (this.sensors[i].type == type) {
+    //    isAlreadyAdded = true;
+    //  }
+    //}
+    console.log(`${isAlreadyAdded} ${notEnoughEnergy}`);
+
+    if (isAlreadyAdded) {
+      console.log(`Sensor ${type} already enabled`);
       return;
     }
 
-    if (this.notEnoughEnergy) {
+    if (notEnoughEnergy) {
       console.warn(
         "SensorLogger not started, battery low: " + batt.chargeLevel
       );
       return;
     }
 
-    let added = false;
-    Sensor.availableSensors.forEach((_, sensorType) => {
-      if (sensorType == type) {
-        this.sensors.append(
-          new Sensor(type, freq, batch)
-        );
-        added = true;
-      }
-    });
-    if (!added) {
+    if (Object.keys(Sensor.availableSensors).indexOf(type) !== -1) {
+      this.sensors.append(
+        new Sensor(type, freq, batch)
+      );
+    } else {
       console.error(`Sensor "${type}" is not implemented, cannot be enabled.`);
     }
   }
@@ -188,7 +193,7 @@ class SensorLogger {
   // Stops SensorLogger in case battery is less than <this.minBatteryLevel>
   // runs every <this.watchdogTimeLimit>
   watchdogHandle() {
-    console.debug(`Watchdog, enough batt? ${!this.notEnoughEnergy}`);
+    console.log(`Watchdog, enough batt? ${!this.notEnoughEnergy}`);
     if (this.notEnoughEnergy) {
       this.stop();
     }
@@ -204,14 +209,14 @@ class SensorLogger {
       this.watchdogHandle,
       this.watchdogTimeLimit
     );
-    console.debug(`Watchdog started`);
+    console.log(`Watchdog started`);
   }
 
   stopWatchdog() {
     if (this.watchdogTimer) {
       clearTimeout(this.watchdogTimer);
       this.watchdogTimer = undefined;
-      console.debug(`Watchdog stopped`);
+      console.log(`Watchdog stopped`);
     }
   }
 }
