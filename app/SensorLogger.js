@@ -107,25 +107,12 @@ class SensorLogger {
     freq = freq || this.freq;
     batch = batch || this.batch;
 
-    let isAlreadyAdded = false;
-    let notEnoughEnergy = this.notEnoughEnergy;
-    // Incomplete implementation of ES6 is not allowing me to use simpler expressions.
-    for (let i = 0; i < this.sensors.length; i++) {
-      if (this.sensors[i].type == type) {
-        isAlreadyAdded = true;
-      }
-    }
-    console.log(`${isAlreadyAdded} ${notEnoughEnergy}`);
-    console.log(this.sensors.length);
-    console.log(`${typeof this.notEnoughEnergy} ${this.notEnoughEnergy}`);
-    isAlreadyAdded = false;
-
-    if (isAlreadyAdded) {
+    if (this.sensors.some(sensor => sensor.type == type)) {
       console.log(`Sensor ${type} already enabled`);
       return;
     }
 
-    if (notEnoughEnergy) {
+    if (this.notEnoughEnergy) {
       console.warn(
         "SensorLogger not started, battery low: " + batt.chargeLevel
       );
