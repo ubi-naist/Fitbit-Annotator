@@ -10,60 +10,86 @@ class Sensor {
   batch = 150; // samples to get batched per triggered event
   zeroPadding = 3;
   static availableSensors = {
-    accelerometer: Accelerometer,
-    gyroscope: Gyroscope,
-    heartrate: HeartRateSensor,
+    accelerometer: "accelerometerBuilder",
+    gyroscope: "gyroscopeBuilder",
+    heartrate: "heartrateBuilder",
   };
 
   constructor(type, freq, batch) {
     this.freq = freq || this.freq;
     this.batch = batch || this.batch;
-    type = type.toLowerCase().trim();
+    this.type = type.toLowerCase().trim();
 
-    if (Object.keys(Sensor.availableSensors).indexOf(type) === -1) {
-      throw new TypeError(`"${type}" sensor is not implemented`);
+    if (Object.keys(Sensor.availableSensors).indexOf(this.type) === -1) {
+      throw new TypeError(`"${this.type}" sensor is not implemented`);
     }
-    const builder = Sensor.availableSensors[type];
-    this.device = new builder({
-      frequency: this.freq,
-      batch: this.batch,
-    });
-    this.device.addEventListener("reading", this[type + "Event"]);
+    const builder = Sensor.availableSensors[this.type];
+    this.device = this[builder]();
   }
 
   get isActive() {
     return this.device.activated;
   }
 
-  start = () => this.device.start();
-  stop = () => this.device.stop();
-
-  accelerometerEvent() {
-    const r = this.device.readings;
-    console.log("Accelerometer records:");
-    for (let i = 0; i < r.timestamp.length; i++) {
-      console.log(
-        `${this._zeropad(i)} ${r.timestamp[i]}: ${r.x[i]},${r.y[i]},${r.z[i]}`
-      );
-    }
+  start() {
+    this.device.start();
+    console.log(`${this.type} sensor started`);
+  }
+  stop() {
+    this.device.stop();
+    console.log(`${this.type} sensor stopped`);
   }
 
-  gyroscopeEvent() {
-    const r = this.device.readings;
-    console.log("Gyroscope records:");
-    for (let i = 0; i < r.timestamp.length; i++) {
-      console.log(
-        `${this._zeropad(i)} ${r.timestamp[i]}: ${r.x[i]},${r.y[i]},${r.z[i]}`
-      );
-    }
+  accelerometerBuilder() {
+    const device = new Accelerometer({
+      frequency: this.freq,
+      batch: this.batch,
+    });
+    device.addEventListener("reading", () => {
+      const r = device.readings;
+      console.log("Accelerometer records:");
+      for (let i = 0; i < r.timestamp.length; i++) {
+        console.log(
+          `${this._zeropad(i)} ${r.timestamp[i]}: ${r.x[i]},${r.y[i]},${r.z[i]}`
+        );
+      }
+    });
+    console.log(`Accelerometer sensor initialized`);
+    return device;
   }
 
-  heartrateEvent() {
-    const r = this.device.readings;
-    console.log("HeartRate records:");
-    for (let i = 0; i < r.timestamp.length; i++) {
-      console.log(`${this._zeropad(i)} ${r.timestamp[i]}: ${r.heartRate[i]}`);
-    }
+  gyroscopeBuilder() {
+    const device = new Gyroscope({
+      frequency: this.freq,
+      batch: this.batch,
+    });
+    device.addEventListener("reading", () => {
+      const r = device.readings;
+      console.log("Gyroscope records:");
+      for (let i = 0; i < r.timestamp.length; i++) {
+        console.log(
+          `${this._zeropad(i)} ${r.timestamp[i]}: ${r.x[i]},${r.y[i]},${r.z[i]}`
+        );
+      }
+    });
+    console.log(`Gyroscope sensor initialized`);
+    return device;
+  }
+
+  heartrateBuilder() {
+    const device = new HeartRateSensor({
+      frequency: this.freq,
+      batch: this.batch,
+    });
+    device.addEventListener("reading", () => {
+      const r = device.readings;
+      console.log("HeartRateSensor records:");
+      for (let i = 0; i < r.timestamp.length; i++) {
+        console.log(`${this._zeropad(i)} ${r.timestamp[i]}: ${r.heartRate[i]}`);
+      }
+    });
+    console.log(`HeartRateSensor sensor initialized`);
+    return device;
   }
 
   _zeropad = (num) => ("0000000" + num).slice(-this.zeroPadding);
@@ -84,22 +110,18 @@ class SensorLogger {
     const isIterable = sensors && typeof sensors.forEach === "function";
     if (isIterable) {
       sensors.forEach((type) => {
-        this.sensors.append(
-          new Sensor(type, this.freq, this.batch)
-        );
+        this.sensors.push(new Sensor(type, this.freq, this.batch));
       });
     } else {
       // Load all available sensors
       Object.keys(Sensor.availableSensors).forEach((type) => {
-        this.sensors.append(
-          new Sensor(type, this.freq, this.batch)
-        );
+        this.sensors.push(new Sensor(type, this.freq, this.batch));
       });
     }
   }
 
   get notEnoughEnergy() {
-    return (batt.chargeLevel <= this.minBatteryLevel) && !batt.charging;
+    return batt.chargeLevel <= this.minBatteryLevel && !batt.charging;
   }
 
   enableSensor(type, freq = null, batch = null) {
@@ -107,7 +129,7 @@ class SensorLogger {
     freq = freq || this.freq;
     batch = batch || this.batch;
 
-    if (this.sensors.some(sensor => sensor.type == type)) {
+    if (this.sensors.some((sensor) => sensor.type == type)) {
       console.log(`Sensor ${type} already enabled`);
       return;
     }
@@ -120,9 +142,7 @@ class SensorLogger {
     }
 
     if (Object.keys(Sensor.availableSensors).indexOf(type) !== -1) {
-      this.sensors.append(
-        new Sensor(type, freq, batch)
-      );
+      this.sensors.push(new Sensor(type, freq, batch));
     } else {
       console.error(`Sensor "${type}" is not implemented, cannot be enabled.`);
     }
