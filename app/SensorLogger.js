@@ -130,7 +130,11 @@ class SensorLogger {
   }
 
   get notEnoughEnergy() {
-    return batt.chargeLevel <= this.minBatteryLevel && !batt.charging;
+    const notEnoughEnergy = batt.chargeLevel <= this.minBatteryLevel && !batt.charging;
+    if (notEnoughEnergy) {
+      this.onNotEnoughEnergy();
+    }
+    return notEnoughEnergy;
   }
 
   get anySensorActive() {
@@ -140,6 +144,17 @@ class SensorLogger {
   get noneSensorsActive() {
     return !this.anySensorActive;
   }
+
+  onNotEnoughEnergy() {}
+
+  onNonStart() {}
+
+  /**
+   * Callback that will executed when all sensors have been stopped
+   * This can be implemented by GUI elements to provide automatic behaviors
+   * example: Toggle Button automatic deactivation
+   */
+  onAllSensorsStopped() {}
 
   enableSensor(type, freq = null, batch = null) {
     type = type.toLowerCase().trim();
@@ -168,15 +183,15 @@ class SensorLogger {
 
   disableSensor(type) {
     type = type.toLowerCase().trim();
-    let indexToRemove = null;
-    for (let i = 0; i < this.sensors.length; i++) {
-      if (this.sensors[i].type == type) {
-        indexToRemove = i;
-        break;
+    this.stop([type]);
+    const indexToRemove = null;
+    this.sensors.some((sensor, idx) => {
+      if (sensor.type === type) {
+        indexToRemove = idx;
+        return true;
       }
-    }
+    });
     if (indexToRemove !== null) {
-      this.sensors[indexToRemove].stop();
       this.sensors.splice(indexToRemove, 1);
     }
   }
@@ -186,6 +201,7 @@ class SensorLogger {
       console.warn(
         "SensorLogger not started, battery low: " + batt.chargeLevel
       );
+      this.onNonStart();
       return;
     }
     this.sensors.forEach((sensor) => {
@@ -196,6 +212,8 @@ class SensorLogger {
     });
     if (this.anySensorActive) {
       this.startWatchdog();
+    } else {
+      this.onNonStart();
     }
   }
 
@@ -208,6 +226,7 @@ class SensorLogger {
     });
     if (this.noneSensorsActive) {
       this.stopWatchdog();
+      this.onAllSensorsStopped();
     }
   }
 

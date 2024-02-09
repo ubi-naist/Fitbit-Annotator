@@ -122,6 +122,13 @@ class WideToggleButton
     let rectEvent = undefined;
     switch(type) {
       case "record":
+        const deactivateToggle = () => {
+          if (this.isActive) {
+            this.toggle();
+          }
+        };
+        sensorLogger.onNonStart = () => deactivateToggle();
+        sensorLogger.onAllSensorsStopped = () => deactivateToggle();
         rectEvent = (_) => {
           this.toggle();
           if (this.isActive) {
