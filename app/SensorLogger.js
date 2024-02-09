@@ -6,25 +6,36 @@ import { HeartRateSensor } from "heart-rate";
 class Sensor {
   type = null;
   device = null;
-  freq = 5; // hertz
-  batch = 150; // samples to get batched per triggered event
   zeroPadding = 3;
   static availableSensors = {
-    accelerometer: "accelerometerBuilder",
-    gyroscope: "gyroscopeBuilder",
-    heartrate: "heartrateBuilder",
+    accelerometer: {
+      builder: "accelerometerBuilder",
+      freq: 5, // hertz
+      batch: 150, // samples to get batched per triggered event
+    },
+    gyroscope: {
+      builder: "gyroscopeBuilder",
+      freq: 5,
+      batch: 150,
+    },
+    heartrate: {
+      builder: "heartrateBuilder",
+      freq: 1,
+      batch: 30,
+    },
   };
 
-  constructor(type, freq, batch) {
-    this.freq = freq || this.freq;
-    this.batch = batch || this.batch;
+  constructor(type, freq = null, batch = null) {
     this.type = type.toLowerCase().trim();
 
-    if (Object.keys(Sensor.availableSensors).indexOf(this.type) === -1) {
+    if (!Sensor.availableSensors[this.type]) {
       throw new TypeError(`"${this.type}" sensor is not implemented`);
     }
-    const builder = Sensor.availableSensors[this.type];
-    this.device = this[builder]();
+
+    const metadata = Sensor.availableSensors[this.type];
+    this.freq = freq || metadata.freq;
+    this.batch = batch || metadata.batch;
+    this.device = this[metadata.builder]();
   }
 
   get isActive() {
@@ -96,10 +107,8 @@ class Sensor {
 }
 
 class SensorLogger {
-  freq = 5; // hertz
-  batch = 150; // samples to get batched per triggered event
   minBatteryLevel = 20;
-  watchdogTimeLimit = 1 * 60 * 1000; // milliseconds
+  watchdogTimeLimit = 1 * 10 * 1000; // milliseconds
   watchdogTimer = null;
 
   constructor({ freq, batch, sensors } = {}) {
@@ -126,8 +135,6 @@ class SensorLogger {
 
   enableSensor(type, freq = null, batch = null) {
     type = type.toLowerCase().trim();
-    freq = freq || this.freq;
-    batch = batch || this.batch;
 
     if (this.sensors.some((sensor) => sensor.type == type)) {
       console.log(`Sensor ${type} already enabled`);
@@ -141,7 +148,10 @@ class SensorLogger {
       return;
     }
 
-    if (Object.keys(Sensor.availableSensors).indexOf(type) !== -1) {
+    if (Sensor.availableSensors[type]) {
+      const metadata = Sensor.availableSensors[type];
+      freq = freq || metadata.freq;
+      batch = batch || metadata.batch;
       this.sensors.push(new Sensor(type, freq, batch));
     } else {
       console.error(`Sensor "${type}" is not implemented, cannot be enabled.`);
@@ -200,25 +210,22 @@ class SensorLogger {
     }
   }
 
-  // Stops SensorLogger in case battery is less than <this.minBatteryLevel>
-  // runs every <this.watchdogTimeLimit>
-  watchdogHandle() {
-    console.log(`Watchdog, enough batt? ${!this.notEnoughEnergy}`);
-    if (this.notEnoughEnergy) {
-      this.stop();
-    }
-    this.watchdogTimer = undefined;
-    this.startWatchdog();
-  }
-
+  /**
+   * Stops SensorLogger in case battery is less than <this.minBatteryLevel>
+   * runs every <this.watchdogTimeLimit>
+   */
   startWatchdog() {
     if (this.watchdogTimer) {
       clearTimeout(this.watchdogTimer);
     }
-    this.watchdogTimer = setTimeout(
-      this.watchdogHandle,
-      this.watchdogTimeLimit
-    );
+    this.watchdogTimer = setTimeout(() => {
+      console.log(`Watchdog, enough batt? ${!this.notEnoughEnergy}`);
+      if (this.notEnoughEnergy) {
+        this.stop();
+      }
+      this.watchdogTimer = undefined;
+      this.startWatchdog();
+    }, this.watchdogTimeLimit);
     console.log(`Watchdog started`);
   }
 

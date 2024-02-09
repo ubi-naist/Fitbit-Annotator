@@ -1,5 +1,5 @@
 import { gettext } from "i18n";
-import { Sensor, SensorLogger } from "./SensorLogger";
+import { SensorLogger } from "./SensorLogger";
 
 const toggleActivities = [
   "exercise", "family", "vgame", "working", "television",
