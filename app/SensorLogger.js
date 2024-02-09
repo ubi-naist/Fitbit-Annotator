@@ -133,6 +133,14 @@ class SensorLogger {
     return batt.chargeLevel <= this.minBatteryLevel && !batt.charging;
   }
 
+  get anySensorActive() {
+    return this.sensors.some((sensor) => sensor.isActive);
+  }
+
+  get noneSensorsActive() {
+    return !this.anySensorActive;
+  }
+
   enableSensor(type, freq = null, batch = null) {
     type = type.toLowerCase().trim();
 
@@ -180,32 +188,25 @@ class SensorLogger {
       );
       return;
     }
-
-    let activeSensors = Array(this.sensors.length);
-    for (let i = 0; i < this.sensors.length; i++) {
-      let curSensor = this.sensors[i];
-      if (sensors.length < 1 || sensors.indexOf(curSensor.type) !== -1) {
+    this.sensors.forEach((sensor) => {
+      if (sensors.length < 1 || sensors.indexOf(sensor.type) !== -1) {
         // It should start current sensor if 1. <sensors> is not defined 2. the sensor was defined in <sensors>
-        curSensor.start();
+        sensor.start();
       } // it won't start the sensor if <sensors> is defined AND this sensor is not defined in <sensors>
-      activeSensors[i] = curSensor.isActive;
-    }
-    if (activeSensors.some((elem) => elem === true)) {
+    });
+    if (this.anySensorActive) {
       this.startWatchdog();
     }
   }
 
   stop(sensors = []) {
-    let activeSensors = Array(this.sensors.length);
-    for (let i = 0; i < this.sensors.length; i++) {
-      let curSensor = this.sensors[i];
-      if (sensors.length < 1 || sensors.indexOf(curSensor.type) !== -1) {
+    this.sensors.forEach((sensor) => {
+      if (sensors.length < 1 || sensors.indexOf(sensor.type) !== -1) {
         // It should stop current sensor if 1. <sensors> is not defined 2. the sensor was defined in <sensors>
-        curSensor.stop();
+        sensor.stop();
       } // it won't stop the sensor if <sensors> is defined AND this sensor is not defined in <sensors>
-      activeSensors[i] = curSensor.isActive;
-    }
-    if (activeSensors.every((elem) => elem === false)) {
+    });
+    if (this.noneSensorsActive) {
       this.stopWatchdog();
     }
   }
@@ -222,6 +223,7 @@ class SensorLogger {
       console.log(`Watchdog, enough batt? ${!this.notEnoughEnergy}`);
       if (this.notEnoughEnergy) {
         this.stop();
+        return;
       }
       this.watchdogTimer = undefined;
       this.startWatchdog();
