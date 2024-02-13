@@ -45,3 +45,6 @@ msgstr "Stop"
 
 msgid "record_active_l2"
 msgstr "Recording"
+
+msgid "low_battery_alert"
+msgstr "Battery too Low"

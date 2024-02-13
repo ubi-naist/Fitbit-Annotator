@@ -36,5 +36,11 @@
         <text id="text-l2" x="66%" y="72%" text-length="10" />
       </section>
     </symbol>
+    <symbol id="alert-notification">
+      <section class="alert-notification" x="10%" y="20%" width="80%" height="60%">
+        <rect id="rectangle" x="0" y="0" width="100%" height="100%" />
+        <text id="text" class="center-text" text-length="20" x="50%" y="50%" />
+      </section>
+    </symbol>
   </defs>
 </svg>

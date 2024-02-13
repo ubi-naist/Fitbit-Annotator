@@ -1,5 +1,6 @@
 import { gettext } from "i18n";
 import { SensorLogger } from "./SensorLogger";
+import * as document from "document";
 
 const toggleActivities = [
   "exercise", "family", "vgame", "working", "television",
@@ -129,6 +130,10 @@ class WideToggleButton
         };
         sensorLogger.onNonStart = () => deactivateToggle();
         sensorLogger.onAllSensorsStopped = () => deactivateToggle();
+        sensorLogger.onNotEnoughEnergy = () => {
+          const alert = new AlertNotification("alert");
+          alert.alertWithTimer("low_battery_alert");
+        };
         rectEvent = (_) => {
           this.toggle();
           if (this.isActive) {
@@ -152,4 +157,58 @@ class WideToggleButton
   }
 }
 
-export { ActivityButton, toggleActivities, WideToggleButton };
+class AlertNotification
+{
+  isActive = false;
+  message = "";
+  elem = null;
+  elemText = null;
+
+  constructor(elemID, msg = "") {
+    this.message = msg;
+    this.elemID = elemID;
+    this.elem = document.getElementById(elemID);
+    this.textElem = this.elem.getElementById("text");
+    this.isActive = this.isElementActive();
+    this.setText(this.message);
+  }
+
+  isElementActive = () => this.elem.style.visibility != "hidden";
+
+  setText(msg) {
+    this.message = msg;
+    this.textElem.text = this.message;
+  }
+
+  show(show) {
+    if (show) {
+      this.isActive = true;
+      this.elem.style.visibility = "visible";
+    } else {
+      this.isActive = false;
+      this.elem.style.visibility = "hidden";
+    }
+  }
+
+  toggle() {
+    this.show(!this.isActive);
+  }
+
+  alertWithTimer(i18nMSG, mstimeout = 4000) {
+    const message = gettext(i18nMSG);
+    if (this.isActive) {
+      // Hide old message and change text
+      this.toggle();
+      this.setText(message);
+    }
+    this.show(true);
+    setTimeout(() => {
+      this.show(false);
+    }, mstimeout);
+  }
+}
+
+export {
+  ActivityButton, toggleActivities,
+  WideToggleButton,
+  AlertNotification };

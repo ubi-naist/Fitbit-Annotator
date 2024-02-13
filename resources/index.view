@@ -45,5 +45,7 @@
 
       <use href="#scrollview-item" height="40" />
     </use>
+
+    <use href="#alert-notification" id="alert" visibility="hidden" />
   </use>
 </svg>
