@@ -2,10 +2,12 @@ import { battery as batt } from "power";
 import { Accelerometer } from "accelerometer";
 import { Gyroscope } from "gyroscope";
 import { HeartRateSensor } from "heart-rate";
+import { fs } from "fs";
 
 class Sensor {
   type = null;
   device = null;
+  loggingFile = "";
   zeroPadding = 3;
   static availableSensors = {
     accelerometer: {
@@ -130,7 +132,8 @@ class SensorLogger {
   }
 
   get notEnoughEnergy() {
-    const notEnoughEnergy = batt.chargeLevel <= this.minBatteryLevel && !batt.charging;
+    const notEnoughEnergy =
+      batt.chargeLevel <= this.minBatteryLevel && !batt.charging;
     if (notEnoughEnergy) {
       this.onNotEnoughEnergy();
     }
@@ -230,6 +233,8 @@ class SensorLogger {
     }
   }
 
+  onWatchdogEvent() {}
+
   /**
    * Stops SensorLogger in case battery is less than <this.minBatteryLevel>
    * runs every <this.watchdogTimeLimit>
@@ -248,6 +253,7 @@ class SensorLogger {
       this.startWatchdog();
     }, this.watchdogTimeLimit);
     console.log(`Watchdog started`);
+    this.onWatchdogEvent();
   }
 
   stopWatchdog() {
@@ -256,6 +262,29 @@ class SensorLogger {
       this.watchdogTimer = undefined;
       console.log(`Watchdog stopped`);
     }
+    this.onWatchdogEvent();
+  }
+}
+
+class DataLogger {
+  logfile = "";
+
+  constructor(logfile = "") {
+    if (logfile !== "") {
+      this.setLoggingFile(this.logfile);
+    }
+  }
+
+  setLoggingFile(filename) {
+    filename = `/private/data/${filename}`;
+    if (!fs.fileExists(filename)) {
+      fs.writeFileSync(filename, "", "utf-8");
+      if (!fs.fileExists(filename)) {
+        console.error("Logging filename cannot be created");
+        return;
+      }
+    }
+    this.logfile = filename;
   }
 }
 
