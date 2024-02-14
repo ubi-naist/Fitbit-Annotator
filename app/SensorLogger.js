@@ -2,7 +2,7 @@ import { battery as batt } from "power";
 import { Accelerometer } from "accelerometer";
 import { Gyroscope } from "gyroscope";
 import { HeartRateSensor } from "heart-rate";
-import { fs } from "fs";
+import * as fs from "fs";
 
 class Sensor {
   type = null;
@@ -94,12 +94,16 @@ class Sensor {
       frequency: this.freq,
       batch: this.batch,
     });
+    const dataLogger = new DataLogger("heartrate");
     device.addEventListener("reading", () => {
       const r = device.readings;
       console.log("HeartRateSensor records:");
+      let dataStr = "";
       for (let i = 0; i < r.timestamp.length; i++) {
         console.log(`${this._zeropad(i)} ${r.timestamp[i]}: ${r.heartRate[i]}`);
+        dataStr += `${r.timestamp[i]};HRTR;${r.heartRate[i]}\n`;
       }
+      dataLogger.logData(dataStr);
     });
     console.log(`HeartRateSensor sensor initialized`);
     return device;
@@ -267,25 +271,106 @@ class SensorLogger {
 }
 
 class DataLogger {
-  logfile = "";
+  loggerName = undefined;
+  logfile = undefined;
+  logfileSizeLimit = 100 * 1024; // bytes
+  storageHardLimit = 4.5 * 1000 * 1024; // bytes
+  rotationTime = 5 * 60 * 1000; // seconds
+  csvHeader = "timestamp;sensor;data";
 
-  constructor(logfile = "") {
-    if (logfile !== "") {
-      this.setLoggingFile(this.logfile);
-    }
+  constructor(loggerName) {
+    this.loggerName = loggerName;
+    this.logfile = this._createFilename();
+    this.initLogFile(this.logfile);
   }
 
-  setLoggingFile(filename) {
-    filename = `/private/data/${filename}`;
-    if (!fs.fileExists(filename)) {
-      fs.writeFileSync(filename, "", "utf-8");
-      if (!fs.fileExists(filename)) {
-        console.error("Logging filename cannot be created");
-        return;
+  get isLogfileTooBig() {
+    const filename = `/private/data/${this.logfile}`;
+    if (!fs.existsSync(filename)) {
+      return undefined;
+    }
+    const stat = fs.statSync(filename);
+    return stat.size > this.logfileSizeLimit;
+  }
+
+  get storageSize() {
+    const dir = fs.listDirSync("/private/data/");
+    let size = 0;
+    let dirIter = undefined;
+    while ((dirIter = dir.next()) && !dirIter.done) {
+      size += fs.statSync(dirIter.value).size;
+    }
+    return size;
+  }
+
+  initLogFile(filename) {
+    const filepath = `/private/data/${filename}`;
+    if (!fs.existsSync(filepath)) {
+      fs.writeFileSync(filepath, `${this.csvHeader}\n`, "utf-8");
+      if (!fs.existsSync(filepath)) {
+        console.error(
+          `DataLogger(${this.loggerName}): Logging filename cannot be created`
+        );
+        this.logfile = undefined;
       }
     }
     this.logfile = filename;
+    return this.logfile;
+  }
+
+  logData(dataStr) {
+    const storageFreeSpace = this.storageHardLimit - this.storageSize;
+    if ((dataStr.length*2) > storageFreeSpace) {
+      console.error(
+        `DataLogger(${this.loggerName}): cannot write ` +
+          `${dataStr.length} bytes of data. Free space: ${storageFreeSpace}`
+      );
+      return false;
+    }
+    const fd = this._getFD();
+    fs.writeSync(fd, this._str2array(dataStr));
+    fs.closeSync(fd);
+  }
+
+  _createFilename() {
+    const dt = new Date();
+    const month = dt.getMonth() + 1 + "";
+    month = month.length == 1 ? "0" + month : month;
+    const day = dt.getDate() + "";
+    day = day.length == 1 ? "0" + day : day;
+    const hours = dt.getHours() + "";
+    hours = hours.length == 1 ? "0" + hours : hours;
+    const mins = dt.getMinutes() + "";
+    mins = mins.length == 1 ? "0" + mins : mins;
+    const secs = dt.getSeconds() + "";
+    secs = secs.length == 1 ? "0" + secs : secs;
+    const dateString = `${dt.getFullYear()}${month}${day}-${hours}${mins}${secs}`;
+    return `${this.loggerName}_${dateString}.log.csv`;
+  }
+
+  _getFD() {
+    const fileTooBig = this.isLogfileTooBig;
+    if (fileTooBig === undefined || fileTooBig) {
+      // creating new log file
+      console.log(`File ${this.logfile} fileTooBig? ${fileTooBig}`);
+      const newLogfile = this._createFilename();
+      if (!this.initLogFile(newLogfile)) {
+        return undefined;
+      }
+    }
+    const size = fs.statSync(`/private/data/${this.logfile}`).size;
+    console.log(`Opening file ${this.logfile} of ${size} bytes`);
+    return fs.openSync(this.logfile, "a");
+  }
+
+  _str2array(str) {
+    const buf = new ArrayBuffer(str.length * 2);
+    const bufView = new Uint16Array(buf);
+    for (let i = 0; i < str.length; i++) {
+      bufView[i] = str.charCodeAt(i);
+    }
+    return buf;
   }
 }
 
-export { Sensor, SensorLogger };
+export { Sensor, SensorLogger, DataLogger };
