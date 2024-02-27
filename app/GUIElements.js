@@ -1,12 +1,13 @@
 import { gettext } from "i18n";
-import { SensorLogger } from "./SensorLogger";
+import { SensorManager, DataBackupDaemon } from "./SensorLogger";
 import * as document from "document";
 
 const toggleActivities = [
   "exercise", "family", "vgame", "working", "television",
   "eating", "walking",
 ];
-const sensorLogger = new SensorLogger({ sensors: [] });
+const sensorManager = new SensorManager({ sensors: [] });
+const backer = new DataBackupDaemon();
 
 class ActivityButton
 {
@@ -128,20 +129,25 @@ class WideToggleButton
             this.toggle();
           }
         };
-        sensorLogger.onNonStart = () => deactivateToggle();
-        sensorLogger.onAllSensorsStopped = () => deactivateToggle();
-        sensorLogger.onNotEnoughEnergy = () => {
+        sensorManager.onNonStart = () => deactivateToggle();
+        sensorManager.onAllSensorsStopped = () => deactivateToggle();
+        sensorManager.onNotEnoughEnergy = () => {
           const alert = new AlertNotification("alert");
           alert.alertWithTimer("low_battery_alert");
+        };
+        sensorManager.onWatchdogEvent = () => {
+          backer.deleteBackedupFiles();
         };
         rectEvent = (_) => {
           this.toggle();
           if (this.isActive) {
-            sensorLogger.enableSensor("heartrate", 1, 5);
-            sensorLogger.start();
+            sensorManager.enableSensor("heartrate", 1, 5);
+            sensorManager.start();
+            backer.start();
             console.log(`Sensor logger activated`);
           } else {
-            sensorLogger.stop();
+            sensorManager.stop();
+            backer.stop();
             console.log(`Sensor logger deactivated`);
           }
         };

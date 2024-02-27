@@ -1,8 +1,10 @@
+import * as fs from "fs";
 import { battery as batt } from "power";
+import { outbox } from "file-transfer";
+
 import { Accelerometer } from "accelerometer";
 import { Gyroscope } from "gyroscope";
 import { HeartRateSensor } from "heart-rate";
-import * as fs from "fs";
 
 class Sensor {
   type = null;
@@ -112,7 +114,7 @@ class Sensor {
   _zeropad = (num) => ("0000000" + num).slice(-this.zeroPadding);
 }
 
-class SensorLogger {
+class SensorManager {
   minBatteryLevel = 20;
   watchdogTimeLimit = 1 * 10 * 1000; // milliseconds
   watchdogTimer = null;
@@ -273,10 +275,11 @@ class SensorLogger {
 class DataLogger {
   loggerName = undefined;
   logfile = undefined;
-  logfileSizeLimit = 100 * 1024; // bytes
+  logfileSizeLimit = 500 * 1024; // bytes
   storageHardLimit = 4.5 * 1000 * 1024; // bytes
-  rotationTime = 5 * 60 * 1000; // seconds
   csvHeader = "timestamp;sensor;data";
+  static storagePrefix = "/private/data";
+  static filenameRegex = /^\w+_\d+-\d+\.log\.csv$/;
 
   constructor(loggerName) {
     this.loggerName = loggerName;
@@ -285,7 +288,7 @@ class DataLogger {
   }
 
   get isLogfileTooBig() {
-    const filename = `/private/data/${this.logfile}`;
+    const filename = `${DataLogger.storagePrefix}/${this.logfile}`;
     if (!fs.existsSync(filename)) {
       return undefined;
     }
@@ -294,7 +297,7 @@ class DataLogger {
   }
 
   get storageSize() {
-    const dir = fs.listDirSync("/private/data/");
+    const dir = fs.listDirSync(DataLogger.storagePrefix);
     let size = 0;
     let dirIter = undefined;
     while ((dirIter = dir.next()) && !dirIter.done) {
@@ -304,7 +307,7 @@ class DataLogger {
   }
 
   initLogFile(filename) {
-    const filepath = `/private/data/${filename}`;
+    const filepath = `${DataLogger.storagePrefix}/${filename}`;
     if (!fs.existsSync(filepath)) {
       fs.writeFileSync(filepath, `${this.csvHeader}\n`, "utf-8");
       if (!fs.existsSync(filepath)) {
@@ -358,7 +361,7 @@ class DataLogger {
         return undefined;
       }
     }
-    const size = fs.statSync(`/private/data/${this.logfile}`).size;
+    const size = fs.statSync(`${DataLogger.storagePrefix}/${this.logfile}`).size;
     console.log(`Opening file ${this.logfile} of ${size} bytes`);
     return fs.openSync(this.logfile, "a");
   }
@@ -373,4 +376,103 @@ class DataLogger {
   }
 }
 
-export { Sensor, SensorLogger, DataLogger };
+class DataBackupDaemon
+{
+  timer = undefined;
+  backedupSuffix = "backd";
+  frequency = 60 * 1000; // milliseconds
+
+  /**
+   * @param {integer} freq The Daemon will check every <freq> seconds for new files to backup
+   */
+  constructor(freq=60) {
+    this.frequency = freq * 1000;
+  }
+
+  onBackupEvent() {}
+
+  start() {
+    console.log("backer started");
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+    this.timer = setTimeout(() => {
+      console.log("DataBackupDaemon backing up");
+      this.backupToCompanion();
+      this.timer = undefined;
+      this.timer = this.start();
+    }, this.frequency);
+    console.log("DataBackupDaemon started");
+    this.onBackupEvent();
+  }
+
+  stop() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+      this.timer = undefined;
+      console.log("DataBackupDaemon stopped");
+    }
+    this.onBackupEvent();
+  }
+
+  backupToCompanion(includeLatestFile = false) {
+    const fileList = this._fileList();
+    if (fileList.length > 0 && !includeLatestFile) {
+      fileList.pop();
+    }
+    console.log(`Files to backup: ${fileList.length}`);
+    fileList.forEach((filename) => {
+      outbox
+        .equeueFile(filename)
+        .then((ft) => {
+          console.log(`File ${filename} got enqueued for transfer to Companion`);
+          ft.addEventListener("change", (obj, _) => {
+            console.log(`File transfer of ${filename} changed to: ${obj.readyState}`);
+            if (obj.readyState == "transferred") {
+              if (this._markAsTransferred(filename)) {
+                console.log(`${filename} marked as transferred`);
+              }
+            }
+          });
+        })
+        .catch((error) => {
+          console.log(`Failed to queue file transfer of ${filename}: ${error}`);
+        });
+    });
+  }
+
+  deleteBackedupFiles() {
+    const dirIter = fs.listDirSync(DataLogger.storagePrefix);
+    const backedRgx = new RegExp(`/*.${this.backedupSuffix}$/`);
+    let item = null;
+    while((item = dirIter.next()) && !dirIter.done) {
+      if (backedRgx.test(item.value)) {
+        fs.unlinkSync(item.value);
+        console.log(`File ${item.value} deleted`);
+      }
+    }
+  }
+
+  _fileList() {
+    const dirIter = fs.listDirSync(DataLogger.storagePrefix);
+    let fileList = new Array();
+    let item = null;
+    while((item = dirIter.next()) && !dirIter.done) {
+      if (DataLogger.filenameRegex.test(item.value)) {
+        fileList.push(item.value);
+      }
+    }
+    return fileList.length > 0 ? fileList.sort(): fileList;
+  }
+
+  _markAsTransferred(filename) {
+    const fn = DataLogger.storagePrefix + '/' + filename;
+    if (!fs.existsSync(fn)) {
+      return false;
+    }
+    fn.renameSync(fn, fn + '.' + this.backedupSuffix);
+    return true;
+  }
+}
+
+export { Sensor, SensorManager, DataLogger, DataBackupDaemon };
