@@ -141,7 +141,7 @@ class WideToggleButton
         rectEvent = (_) => {
           this.toggle();
           if (this.isActive) {
-            sensorManager.enableSensor("heartrate", 1, 5);
+            sensorManager.enableSensor("heartrate");
             sensorManager.start();
             backer.start();
             console.log(`Sensor logger activated`);

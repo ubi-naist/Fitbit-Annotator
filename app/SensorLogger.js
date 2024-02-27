@@ -99,10 +99,10 @@ class Sensor {
     const dataLogger = new DataLogger("heartrate");
     device.addEventListener("reading", () => {
       const r = device.readings;
-      console.log("HeartRateSensor records:");
+      console.log(`HeartRateSensor: ${r.timestamp.length} records`);
       let dataStr = "";
       for (let i = 0; i < r.timestamp.length; i++) {
-        console.log(`${this._zeropad(i)} ${r.timestamp[i]}: ${r.heartRate[i]}`);
+        // console.log(`${this._zeropad(i)} ${r.timestamp[i]}: ${r.heartRate[i]}`);
         dataStr += `${r.timestamp[i]};HRTR;${r.heartRate[i]}\n`;
       }
       dataLogger.logData(dataStr);
@@ -275,7 +275,7 @@ class SensorManager {
 class DataLogger {
   loggerName = undefined;
   logfile = undefined;
-  logfileSizeLimit = 500 * 1024; // bytes
+  logfileSizeLimit = 10 * 1024; // bytes
   storageHardLimit = 4.5 * 1000 * 1024; // bytes
   csvHeader = "timestamp;sensor;data";
   static storagePrefix = "/private/data";
@@ -323,7 +323,7 @@ class DataLogger {
 
   logData(dataStr) {
     const storageFreeSpace = this.storageHardLimit - this.storageSize;
-    if ((dataStr.length*2) > storageFreeSpace) {
+    if (dataStr.length * 2 > storageFreeSpace) {
       console.error(
         `DataLogger(${this.loggerName}): cannot write ` +
           `${dataStr.length} bytes of data. Free space: ${storageFreeSpace}`
@@ -361,7 +361,9 @@ class DataLogger {
         return undefined;
       }
     }
-    const size = fs.statSync(`${DataLogger.storagePrefix}/${this.logfile}`).size;
+    const size = fs.statSync(
+      `${DataLogger.storagePrefix}/${this.logfile}`
+    ).size;
     console.log(`Opening file ${this.logfile} of ${size} bytes`);
     return fs.openSync(this.logfile, "a");
   }
@@ -376,8 +378,7 @@ class DataLogger {
   }
 }
 
-class DataBackupDaemon
-{
+class DataBackupDaemon {
   timer = undefined;
   backedupSuffix = "backd";
   frequency = 60 * 1000; // milliseconds
@@ -385,7 +386,7 @@ class DataBackupDaemon
   /**
    * @param {integer} freq The Daemon will check every <freq> seconds for new files to backup
    */
-  constructor(freq=60) {
+  constructor(freq = 60) {
     this.frequency = freq * 1000;
   }
 
@@ -397,10 +398,9 @@ class DataBackupDaemon
       clearTimeout(this.timer);
     }
     this.timer = setTimeout(() => {
-      console.log("DataBackupDaemon backing up");
       this.backupToCompanion();
       this.timer = undefined;
-      this.timer = this.start();
+      this.start();
     }, this.frequency);
     console.log("DataBackupDaemon started");
     this.onBackupEvent();
@@ -416,19 +416,24 @@ class DataBackupDaemon
   }
 
   backupToCompanion(includeLatestFile = false) {
-    const fileList = this._fileList();
+    const fileList = this._fileList(DataLogger.filenameRegex);
     if (fileList.length > 0 && !includeLatestFile) {
       fileList.pop();
     }
     console.log(`Files to backup: ${fileList.length}`);
     fileList.forEach((filename) => {
+      console.log(`backing up ${filename}`);
       outbox
-        .equeueFile(filename)
+        .enqueueFile(filename)
         .then((ft) => {
-          console.log(`File ${filename} got enqueued for transfer to Companion`);
+          console.log(
+            `File ${filename} got enqueued for transfer to Companion`
+          );
           ft.addEventListener("change", (obj, _) => {
-            console.log(`File transfer of ${filename} changed to: ${obj.readyState}`);
-            if (obj.readyState == "transferred") {
+            console.log(
+              `File transfer of ${filename} changed to: ${ft.readyState}`
+            );
+            if (ft.readyState == "transferred") {
               if (this._markAsTransferred(filename)) {
                 console.log(`${filename} marked as transferred`);
               }
@@ -442,35 +447,38 @@ class DataBackupDaemon
   }
 
   deleteBackedupFiles() {
-    const dirIter = fs.listDirSync(DataLogger.storagePrefix);
-    const backedRgx = new RegExp(`/*.${this.backedupSuffix}$/`);
-    let item = null;
-    while((item = dirIter.next()) && !dirIter.done) {
-      if (backedRgx.test(item.value)) {
-        fs.unlinkSync(item.value);
-        console.log(`File ${item.value} deleted`);
-      }
-    }
+    const backedRgx = new RegExp(".+\\." + this.backedupSuffix + "$");
+    const filesToDelete = this._fileList(backedRgx);
+    filesToDelete.forEach((filename) => {
+      fs.unlinkSync(filename);
+      console.log(`File ${filename} deleted`);
+    });
   }
 
-  _fileList() {
-    const dirIter = fs.listDirSync(DataLogger.storagePrefix);
+  _fileList(regex) {
+    let dirIter;
+    try {
+      dirIter = fs.listDirSync(DataLogger.storagePrefix);
+    } catch (err) {
+      console.error(`Failed listing directory: ${err}`);
+      return [];
+    }
     let fileList = new Array();
     let item = null;
-    while((item = dirIter.next()) && !dirIter.done) {
-      if (DataLogger.filenameRegex.test(item.value)) {
+    while ((item = dirIter.next()) && item.value !== undefined) {
+      if (regex.test(item.value)) {
         fileList.push(item.value);
       }
     }
-    return fileList.length > 0 ? fileList.sort(): fileList;
+    return fileList.length > 0 ? fileList.sort() : fileList;
   }
 
   _markAsTransferred(filename) {
-    const fn = DataLogger.storagePrefix + '/' + filename;
-    if (!fs.existsSync(fn)) {
+    const file = DataLogger.storagePrefix + "/" + filename;
+    if (!fs.existsSync(file)) {
       return false;
     }
-    fn.renameSync(fn, fn + '.' + this.backedupSuffix);
+    fs.renameSync(file, file + "." + this.backedupSuffix);
     return true;
   }
 }
