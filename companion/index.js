@@ -6,14 +6,30 @@ if (!companion.permissions.granted("run_background")) {
 }
 
 const MILLISECONDS_PER_MINUTE = 1000 * 60;
-
-companion.wakeInterval = 1 * MILLISECONDS_PER_MINUTE;
-companion.addEventListener("wakeinterval", onWakeHandler);
-
-if (companion.launchReasons.wokenUp) {
-  onWakeHandler();
-}
+const logSender = new LogSender();
+const isInSimulator =
+  companion.host.os.name == "Android" && companion.host.os.version == "unknown";
 
 function onWakeHandler() {
-  console.log("Wake interval happened!");
+  console.log("Wake interval: processing inbox");
+  logSender.processInbox();
+}
+
+function startSimulatorWaker() {
+  setTimeout(() => {
+    onWakeHandler();
+    startSimulatorWaker();
+  }, 60 * 1000);
+}
+
+if (isInSimulator) {
+  onWakeHandler();
+  startSimulatorWaker();
+} else {
+  companion.wakeInterval = 10 * MILLISECONDS_PER_MINUTE;
+  companion.addEventListener("wakeinterval", onWakeHandler);
+
+  if (companion.launchReasons.wokenUp) {
+    onWakeHandler();
+  }
 }
