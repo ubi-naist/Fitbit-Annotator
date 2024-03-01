@@ -393,7 +393,6 @@ class DataBackupDaemon {
   onBackupEvent() {}
 
   start() {
-    console.log("backer started");
     if (this.timer) {
       clearTimeout(this.timer);
     }

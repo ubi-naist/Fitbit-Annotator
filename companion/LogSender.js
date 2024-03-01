@@ -6,17 +6,17 @@ class LogSender {
   fileUploadEndpoint = "";
 
   constructor() {
-    this.setupAPI();
-    this._setListeners();
-    // console.log(`Constructor: file upload endpoint ${this.fileUploadEndpoint}`);
-    this.apiCallTest("GET-LocalTestAPI");
+    // this._setListeners();
+    // For testing API communication on App launch
+    // you need to first configure API url and file upload endpoint
+    // in the user Settings interface of the fitbit app or simulator
+    // this.apiCallTest("GET-TestAPI");
   }
 
   _setListeners() {
+    // this doesn't work, it {this.processInbox} loses "this" context
+    // if it's called like this
     inbox.addEventListener("newfile", this.processInbox);
-    settingsStorage.addEventListener("change", (evt) => {
-      this.setupAPI();
-    });
   }
 
   apiCallTest(type) {
@@ -27,8 +27,9 @@ class LogSender {
         method = "GET";
         headers = { "Content-Type": "application/json" };
         break;
-      case "GET-LocalTestAPI":
-        url = `${this.fileUploadEndpoint}?test=LogSender`;
+      case "GET-TestAPI":
+        const fileUploadEndpoint = this.getEndpointURL("fupendpoint");
+        url = `${fileUploadEndpoint}?test=LogSender`;
         method = "GET";
         headers = { "Content-Type": "application/json" };
         break;
@@ -48,19 +49,19 @@ class LogSender {
       });
   }
 
-  setupAPI() {
+  getEndpointURL(settingsName) {
     this.apiURL = JSON.parse(settingsStorage.getItem("apiurl")).name;
-    const endpoint = JSON.parse(settingsStorage.getItem("fupendpoint")).name;
-    this.fileUploadEndpoint = `${this.apiURL}/${endpoint}`;
-    // console.log(`SetupAPI: file upload endpoint ${this.fileUploadEndpoint}`);
+    const endpoint = JSON.parse(settingsStorage.getItem(settingsName)).name;
+    return `${this.apiURL}/${endpoint}`;
   }
 
   async processInbox() {
     let inboxItem;
-    // console.log(`ProcessInbox: ${this.fileUploadEndpoint}`);
+    const fileUploadEndpoint = this.getEndpointURL("fupendpoint");
+    // console.log(`ProcessInbox: ${fileUploadEndpoint}`);
     while ((inboxItem = await inbox.pop())) {
       console.log(`LogSender: scheduling transmission of ${inboxItem.name}`);
-      fetch(this.fileUploadEndpoint, {
+      fetch(fileUploadEndpoint, {
         method: "POST",
         body: await inboxItem.arrayBuffer(),
         headers: {

@@ -1,5 +1,5 @@
 import { gettext } from "i18n";
-import { SensorManager, DataBackupDaemon } from "./SensorLogger";
+import { SensorManager, DataBackupDaemon } from "./SensorManager";
 import * as document from "document";
 
 const toggleActivities = [
@@ -143,11 +143,13 @@ class WideToggleButton
           if (this.isActive) {
             sensorManager.enableSensor("heartrate");
             sensorManager.start();
+            backer.backupToCompanion(true);
             backer.start();
             console.log(`Sensor logger activated`);
           } else {
             sensorManager.stop();
             backer.stop();
+            backer.backupToCompanion(true);
             console.log(`Sensor logger deactivated`);
           }
         };
