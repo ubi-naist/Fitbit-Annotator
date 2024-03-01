@@ -11,6 +11,8 @@ class Sensor {
   device = null;
   loggingFile = "";
   zeroPadding = 3;
+  freq = 0; // actual frequency setting initialized
+  batch = 0; // actual batch setting initialized
   static availableSensors = {
     accelerometer: {
       builder: "accelerometerBuilder",
@@ -60,14 +62,28 @@ class Sensor {
       frequency: this.freq,
       batch: this.batch,
     });
+    const dataLogger = new DataLogger("accelerometer");
     device.addEventListener("reading", () => {
       const r = device.readings;
-      console.log("Accelerometer records:");
+      console.log(`Accelerometer: ${r.timestamp.length} records`);
+      let dataStr = "", accOffset = 0;
+      const firstRealTimestamp = this._batchStartTimestamp();
+      let previousRelTimestamp, currentTimestamp, currentRelTimestamp;
       for (let i = 0; i < r.timestamp.length; i++) {
-        console.log(
-          `${this._zeropad(i)} ${r.timestamp[i]}: ${r.x[i]},${r.y[i]},${r.z[i]}`
-        );
+        currentRelTimestamp = Number(r.timestamp[i]);
+        if (i === 0) {
+          currentTimestamp = firstRealTimestamp;
+        } else {
+          accOffset += currentRelTimestamp - previousRelTimestamp;
+          currentTimestamp = firstRealTimestamp + accOffset;
+        }
+        // console.log(
+        //   `${this._zeropad(i)} ${r.timestamp[i]}: ${r.x[i]},${r.y[i]},${r.z[i]}`
+        // );
+        dataStr += `${currentTimestamp};ACCL;${r.x[i]},${r.y[i]},${r.z[i]}\n`;
+        previousRelTimestamp = currentRelTimestamp;
       }
+      dataLogger.logData(dataStr);
     });
     console.log(`Accelerometer sensor initialized`);
     return device;
@@ -78,14 +94,28 @@ class Sensor {
       frequency: this.freq,
       batch: this.batch,
     });
+    const dataLogger = new DataLogger("gyroscope");
     device.addEventListener("reading", () => {
       const r = device.readings;
-      console.log("Gyroscope records:");
+      console.log(`Gyroscope: ${r.timestamp.length} records`);
+      let dataStr = "", accOffset = 0;
+      const firstRealTimestamp = this._batchStartTimestamp();
+      let previousRelTimestamp, currentTimestamp, currentRelTimestamp;
       for (let i = 0; i < r.timestamp.length; i++) {
-        console.log(
-          `${this._zeropad(i)} ${r.timestamp[i]}: ${r.x[i]},${r.y[i]},${r.z[i]}`
-        );
+        currentRelTimestamp = Number(r.timestamp[i]);
+        if (i === 0) {
+          currentTimestamp = firstRealTimestamp;
+        } else {
+          accOffset += currentRelTimestamp - previousRelTimestamp;
+          currentTimestamp = firstRealTimestamp + accOffset;
+        }
+        // console.log(
+        //   `${this._zeropad(i)} ${r.timestamp[i]}: ${r.x[i]},${r.y[i]},${r.z[i]}`
+        // );
+        dataStr += `${currentTimestamp};GYRO;${r.x[i]},${r.y[i]},${r.z[i]}\n`;
+        previousRelTimestamp = currentRelTimestamp;
       }
+      dataLogger.logData(dataStr);
     });
     console.log(`Gyroscope sensor initialized`);
     return device;
@@ -100,10 +130,20 @@ class Sensor {
     device.addEventListener("reading", () => {
       const r = device.readings;
       console.log(`HeartRateSensor: ${r.timestamp.length} records`);
-      let dataStr = "";
+      let dataStr = "", accOffset = 0;
+      const firstRealTimestamp = this._batchStartTimestamp();
+      let previousRelTimestamp, currentTimestamp, currentRelTimestamp;
       for (let i = 0; i < r.timestamp.length; i++) {
+        currentRelTimestamp = Number(r.timestamp[i]);
+        if (i === 0) {
+          currentTimestamp = firstRealTimestamp;
+        } else {
+          accOffset += currentRelTimestamp - previousRelTimestamp;
+          currentTimestamp = firstRealTimestamp + accOffset;
+        }
         // console.log(`${this._zeropad(i)} ${r.timestamp[i]}: ${r.heartRate[i]}`);
-        dataStr += `${r.timestamp[i]};HRTR;${r.heartRate[i]}\n`;
+        dataStr += `${currentTimestamp};HRTR;${r.heartRate[i]}\n`;
+        previousRelTimestamp = currentRelTimestamp;
       }
       dataLogger.logData(dataStr);
     });
@@ -112,6 +152,15 @@ class Sensor {
   }
 
   _zeropad = (num) => ("0000000" + num).slice(-this.zeroPadding);
+
+  // Timestamp for the moment the first batch reading was sampled
+  // should be called on a Batch Reading event
+  _batchStartTimestamp() {
+    // time elapsed from the first measurement of the batch
+    // to the moment the "reading" event was triggered
+    const readingEvtTimeOffsetMS = 1000 * (this.batch / this.freq);
+    return Date.now() - readingEvtTimeOffsetMS;
+  }
 }
 
 class SensorManager {
@@ -309,7 +358,7 @@ class DataLogger {
   initLogFile(filename) {
     const filepath = `${DataLogger.storagePrefix}/${filename}`;
     if (!fs.existsSync(filepath)) {
-      fs.writeFileSync(filepath, `${this.csvHeader}\n`, "utf-8");
+      fs.writeFileSync(filepath, `${this.csvHeader}\n`, "ascii");
       if (!fs.existsSync(filepath)) {
         console.error(
           `DataLogger(${this.loggerName}): Logging filename cannot be created`
@@ -323,7 +372,7 @@ class DataLogger {
 
   logData(dataStr) {
     const storageFreeSpace = this.storageHardLimit - this.storageSize;
-    if (dataStr.length * 2 > storageFreeSpace) {
+    if (dataStr.length > storageFreeSpace) {
       console.error(
         `DataLogger(${this.loggerName}): cannot write ` +
           `${dataStr.length} bytes of data. Free space: ${storageFreeSpace}`
@@ -369,8 +418,8 @@ class DataLogger {
   }
 
   _str2array(str) {
-    const buf = new ArrayBuffer(str.length * 2);
-    const bufView = new Uint16Array(buf);
+    const buf = new ArrayBuffer(str.length);
+    const bufView = new Uint8Array(buf);
     for (let i = 0; i < str.length; i++) {
       bufView[i] = str.charCodeAt(i);
     }
