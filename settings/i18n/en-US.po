@@ -1,0 +1,32 @@
+msgid "yes"
+msgstr "yes"
+
+msgid "no"
+msgstr "no"
+
+msgid "api_section_title"
+msgstr "File Backup API"
+
+msgid "apiurl_label"
+msgstr "API URL"
+
+msgid "apiurl_placeholder"
+msgstr "Use https"
+
+msgid "fupendpoint_label"
+msgstr "File Upload endpoint"
+
+msgid "fupendpoint_placeholder"
+msgstr 'Without "/" prefix'
+
+msgid "logger_section_title"
+msgstr "Data Logger"
+
+msgid "logger_hr"
+msgstr "Log Heart Rate"
+
+msgid "logger_accel"
+msgstr "Log Acceleration"
+
+msgid "logger_gyro"
+msgstr "Log Gyroscope"

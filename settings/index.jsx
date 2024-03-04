@@ -1,42 +1,44 @@
+import { gettext } from "i18n";
+
 function GeneralConfig(props) {
   return (
     <Page>
       <Section
         title={
           <Text bold align="center">
-            File Backup API
+            {gettext("api_section_title")}
           </Text>
         }
       >
         <TextInput
           title
-          label="API URL"
-          placeholder="Use https"
+          label={gettext("apiurl_label")}
+          placeholder={gettext("apiurl_placeholder")}
           settingsKey="apiurl"
         />
         <TextInput
-          label="File Upload endpoint"
-          placeholder='Without "/" prefix'
+          label={gettext("fupendpoint_label")}
+          placeholder={gettext("fupendpoint_placeholder")}
           settingsKey="fupendpoint"
         />
       </Section>
       <Section
         title={
           <Text bold align="center">
-            Data Logger
+            {gettext("api_section_title")}
           </Text>
         }
       >
         <Toggle
-          label={`Log Heart Rate: ${props.settings.recordhr === "true" ? "yes" : "no"}`}
+          label={`${gettext("logger_hr")}: ${props.settings.recordhr === "true" ? gettext("yes") : gettext("no")}`}
           settingsKey="recordhr"
         />
         <Toggle
-          label={`Log Acceleration: ${props.settings.recordacc === "true" ? "yes" : "no"}`}
+          label={`${gettext("logger_accel")}: ${props.settings.recordacc === "true" ? gettext("yes") : gettext("no")}`}
           settingsKey="recordacc"
         />
         <Toggle
-          label={`Log Gyroscope: ${props.settings.recordgyro === "true" ? "yes" : "no"}`}
+          label={`${gettext("logger_gyro")}: ${props.settings.recordgyro === "true" ? gettext("yes") : gettext("no")}`}
           settingsKey="recordgyro"
         />
       </Section>

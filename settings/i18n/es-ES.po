@@ -1,0 +1,32 @@
+msgid "yes"
+msgstr "sí"
+
+msgid "no"
+msgstr "no"
+
+msgid "api_section_title"
+msgstr "API para Respaldos"
+
+msgid "apiurl_label"
+msgstr "API URL"
+
+msgid "apiurl_placeholder"
+msgstr "Use https"
+
+msgid "fupendpoint_label"
+msgstr "Endpoint de Respaldo"
+
+msgid "fupendpoint_placeholder"
+msgstr 'Sin prefijo "/"'
+
+msgid "logger_section_title"
+msgstr "Grabado de Registros"
+
+msgid "logger_hr"
+msgstr "Ritmo Cardiaco"
+
+msgid "logger_accel"
+msgstr "Aceleración"
+
+msgid "logger_gyro"
+msgstr "Giroscopio"

@@ -1,0 +1,32 @@
+msgid "yes"
+msgstr "いる"
+
+msgid "no"
+msgstr "なし"
+
+msgid "api_section_title"
+msgstr "バックアップのAPI"
+
+msgid "apiurl_label"
+msgstr "API URL"
+
+msgid "apiurl_placeholder"
+msgstr "httpsを使用する"
+
+msgid "fupendpoint_label"
+msgstr "バックアップエンドポイント"
+
+msgid "fupendpoint_placeholder"
+msgstr "「/」のプレフィックスなしで"
+
+msgid "logger_section_title"
+msgstr "データ記録"
+
+msgid "logger_hr"
+msgstr "心拍数"
+
+msgid "logger_accel"
+msgstr "加速センサー"
+
+msgid "logger_gyro"
+msgstr "ジャイロセンサー"

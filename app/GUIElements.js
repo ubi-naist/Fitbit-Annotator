@@ -143,12 +143,14 @@ class WideToggleButton
           if (this.isActive) {
             sensorManager.enableSensor("heartrate");
             sensorManager.start();
+            backer.deleteBackedupFiles();
             backer.backupToCompanion(true);
             backer.start();
             console.log(`Sensor logger activated`);
           } else {
             sensorManager.stop();
             backer.stop();
+            backer.deleteBackedupFiles();
             backer.backupToCompanion(true);
             console.log(`Sensor logger deactivated`);
           }
