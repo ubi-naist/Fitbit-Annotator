@@ -1,5 +1,6 @@
 import { me as companion } from "companion";
 import { LogSender } from "./LogSender";
+import * as simpleSettings from "./companion-settings";
 
 if (!companion.permissions.granted("run_background")) {
   console.warn("run_background permission is not set");
@@ -33,3 +34,5 @@ if (isInSimulator) {
     onWakeHandler();
   }
 }
+
+simpleSettings.initialize();

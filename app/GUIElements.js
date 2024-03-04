@@ -78,6 +78,9 @@ class WideToggleButton
 {
   isActive = false;
   type = "";
+  logHeartrate = false;
+  logAccelerometer = false;
+  logGyroscope = false;
 
   constructor(elem, type) {
     this.element = elem;
@@ -141,7 +144,15 @@ class WideToggleButton
         rectEvent = (_) => {
           this.toggle();
           if (this.isActive) {
-            sensorManager.enableSensor("heartrate");
+            if (this.logHeartrate) {
+              sensorManager.enableSensor("heartrate");
+            }
+            if (this.logAccelerometer) {
+              sensorManager.enableSensor("accelerometer");
+            }
+            if (this.logGyroscope) {
+              sensorManager.enableSensor("gyroscope");
+            }
             sensorManager.start();
             backer.deleteBackedupFiles();
             backer.backupToCompanion(true);
