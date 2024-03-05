@@ -56,8 +56,13 @@ class LogSender {
   }
 
   async processInbox() {
-    let inboxItem;
-    const fileUploadEndpoint = this.getEndpointURL("fupendpoint");
+    let inboxItem, fileUploadEndpoint;
+    try {
+      fileUploadEndpoint = this.getEndpointURL("fupendpoint");
+    } catch (_) {
+      console.warn("File Backup is not setup in Settings screen");
+      return;
+    }
     // console.log(`ProcessInbox: ${fileUploadEndpoint}`);
     while ((inboxItem = await inbox.pop())) {
       console.log(`LogSender: scheduling transmission of ${inboxItem.name}`);

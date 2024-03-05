@@ -11,20 +11,32 @@ import * as messaging from "messaging";
 const SETTINGS_TYPE = "cbor";
 const SETTINGS_FILE = "settings.cbor";
 
-export let settings;
-let onsettingschange;
+let settings, onsettingschange;
+const defaults = {
+  apiurl: { name: "" },
+  fupendpoint: { name: "" },
+  logheartrate: false,
+  logaccelerometer: false,
+  loggyroscope: false,
+};
 
 export function initialize(callback) {
   settings = loadSettings();
+  console.log(`Settings in file: ${JSON.stringify(settings)}`);
+  settings = {
+    ...defaults,
+    ...settings,
+  };
+  console.log(`Settings loaded: ${JSON.stringify(settings)}`);
   onsettingschange = callback;
   onsettingschange(settings);
 }
 
 // Received message containing settings data
-messaging.peerSocket.addEventListener("message", function(evt) {
+messaging.peerSocket.addEventListener("message", function (evt) {
   settings[evt.data.key] = evt.data.value;
   onsettingschange(settings);
-})
+});
 
 // Register for the unload event
 me.addEventListener("unload", saveSettings);
@@ -40,5 +52,6 @@ function loadSettings() {
 
 // Save settings to the filesystem
 function saveSettings() {
+  console.log(`Settings saving into file: ${JSON.stringify(settings)}`);
   fs.writeFileSync(SETTINGS_FILE, settings, SETTINGS_TYPE);
 }

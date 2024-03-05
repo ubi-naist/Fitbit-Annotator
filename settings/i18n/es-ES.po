@@ -17,7 +17,7 @@ msgid "fupendpoint_label"
 msgstr "Endpoint de Respaldo"
 
 msgid "fupendpoint_placeholder"
-msgstr 'Sin prefijo "/"'
+msgstr "Sin prefijo \"/\""
 
 msgid "logger_section_title"
 msgstr "Grabado de Registros"

@@ -66,7 +66,8 @@ class Sensor {
     device.addEventListener("reading", () => {
       const r = device.readings;
       console.log(`Accelerometer: ${r.timestamp.length} records`);
-      let dataStr = "", accOffset = 0;
+      let dataStr = "",
+        accOffset = 0;
       const firstRealTimestamp = this._batchStartTimestamp();
       let previousRelTimestamp, currentTimestamp, currentRelTimestamp;
       for (let i = 0; i < r.timestamp.length; i++) {
@@ -98,7 +99,8 @@ class Sensor {
     device.addEventListener("reading", () => {
       const r = device.readings;
       console.log(`Gyroscope: ${r.timestamp.length} records`);
-      let dataStr = "", accOffset = 0;
+      let dataStr = "",
+        accOffset = 0;
       const firstRealTimestamp = this._batchStartTimestamp();
       let previousRelTimestamp, currentTimestamp, currentRelTimestamp;
       for (let i = 0; i < r.timestamp.length; i++) {
@@ -130,7 +132,8 @@ class Sensor {
     device.addEventListener("reading", () => {
       const r = device.readings;
       console.log(`HeartRateSensor: ${r.timestamp.length} records`);
-      let dataStr = "", accOffset = 0;
+      let dataStr = "",
+        accOffset = 0;
       const firstRealTimestamp = this._batchStartTimestamp();
       let previousRelTimestamp, currentTimestamp, currentRelTimestamp;
       for (let i = 0; i < r.timestamp.length; i++) {
@@ -252,6 +255,7 @@ class SensorManager {
     if (indexToRemove !== null) {
       this.sensors.splice(indexToRemove, 1);
     }
+    console.log(`Sensor ${type} disabled`);
   }
 
   start(sensors = []) {

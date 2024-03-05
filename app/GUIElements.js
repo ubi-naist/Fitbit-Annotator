@@ -3,17 +3,21 @@ import { SensorManager, DataBackupDaemon } from "./SensorManager";
 import * as document from "document";
 
 const toggleActivities = [
-  "exercise", "family", "vgame", "working", "television",
-  "eating", "walking",
+  "exercise",
+  "family",
+  "vgame",
+  "working",
+  "television",
+  "eating",
+  "walking",
 ];
 const sensorManager = new SensorManager({ sensors: [] });
 const backer = new DataBackupDaemon();
 
-class ActivityButton
-{
+class ActivityButton {
   isActive = false;
 
-  constructor(elem, {isToggle} = {}) {
+  constructor(elem, { isToggle } = {}) {
     this.element = elem;
     this.isToggle = isToggle || false;
 
@@ -58,7 +62,7 @@ class ActivityButton
   }
 
   setEvents() {
-    this.circleElem.addEventListener('mousedown', (_) => {
+    this.circleElem.addEventListener("mousedown", (_) => {
       if (this.isToggle) {
         this.toggle();
       } else {
@@ -66,7 +70,7 @@ class ActivityButton
       }
       console.log(`${this.activityName} pressed, Toggled? ${this.isActive}`);
     });
-    this.circleElem.addEventListener('mouseup', (_) => {
+    this.circleElem.addEventListener("mouseup", (_) => {
       if (!this.isToggle) {
         this.setStyles(false);
       }
@@ -74,13 +78,9 @@ class ActivityButton
   }
 }
 
-class WideToggleButton
-{
+class WideToggleButton {
   isActive = false;
   type = "";
-  logHeartrate = false;
-  logAccelerometer = false;
-  logGyroscope = false;
 
   constructor(elem, type) {
     this.element = elem;
@@ -125,8 +125,15 @@ class WideToggleButton
 
   setEvents(type) {
     let rectEvent = undefined;
-    switch(type) {
+    switch (type) {
       case "record":
+        WideToggleButton.prototype.enableSensor = (enable, name) => {
+          if (enable) {
+            sensorManager.enableSensor(name);
+          } else {
+            sensorManager.disableSensor(name);
+          }
+        };
         const deactivateToggle = () => {
           if (this.isActive) {
             this.toggle();
@@ -144,18 +151,8 @@ class WideToggleButton
         rectEvent = (_) => {
           this.toggle();
           if (this.isActive) {
-            if (this.logHeartrate) {
-              sensorManager.enableSensor("heartrate");
-            }
-            if (this.logAccelerometer) {
-              sensorManager.enableSensor("accelerometer");
-            }
-            if (this.logGyroscope) {
-              sensorManager.enableSensor("gyroscope");
-            }
             sensorManager.start();
             backer.deleteBackedupFiles();
-            backer.backupToCompanion(true);
             backer.start();
             console.log(`Sensor logger activated`);
           } else {
@@ -174,12 +171,11 @@ class WideToggleButton
         };
         break;
     }
-    this.rectElem.addEventListener('mousedown', rectEvent);
+    this.rectElem.addEventListener("mousedown", rectEvent);
   }
 }
 
-class AlertNotification
-{
+class AlertNotification {
   isActive = false;
   message = "";
   elem = null;
@@ -230,6 +226,8 @@ class AlertNotification
 }
 
 export {
-  ActivityButton, toggleActivities,
+  ActivityButton,
+  toggleActivities,
   WideToggleButton,
-  AlertNotification };
+  AlertNotification,
+};

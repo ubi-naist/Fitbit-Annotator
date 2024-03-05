@@ -17,7 +17,7 @@ msgid "fupendpoint_label"
 msgstr "File Upload endpoint"
 
 msgid "fupendpoint_placeholder"
-msgstr 'Without "/" prefix'
+msgstr "Without \"/\" prefix"
 
 msgid "logger_section_title"
 msgstr "Data Logger"
