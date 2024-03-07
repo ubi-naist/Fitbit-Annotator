@@ -1,5 +1,5 @@
 import { gettext } from "i18n";
-import { SensorManager, DataBackupDaemon } from "./SensorManager";
+import { SensorManager, DataBackupDaemon, DataLogger } from "./SensorManager";
 import * as document from "document";
 
 const toggleActivities = [
@@ -11,8 +11,13 @@ const toggleActivities = [
   "eating",
   "walking",
 ];
+const activityLogger = new DataLogger("annotations");
 const sensorManager = new SensorManager({ sensors: [] });
 const backer = new DataBackupDaemon();
+backer.onBackupEvent = () => {
+  backer.deleteBackedupFiles();
+};
+backer.start();
 
 class ActivityButton {
   isActive = false;
@@ -63,12 +68,16 @@ class ActivityButton {
 
   setEvents() {
     this.circleElem.addEventListener("mousedown", (_) => {
+      let msg;
       if (this.isToggle) {
         this.toggle();
+        msg = this.isActive ? "start" : "stop";
       } else {
         this.setStyles(true);
+        msg = "instance";
       }
-      console.log(`${this.activityName} pressed, Toggled? ${this.isActive}`);
+      activityLogger.logData(`${Date.now()};${this.activityName};${msg}\n`);
+      console.log(`${this.activityName} pressed, ${msg}`);
     });
     this.circleElem.addEventListener("mouseup", (_) => {
       if (!this.isToggle) {
@@ -139,7 +148,13 @@ class WideToggleButton {
             this.toggle();
           }
         };
-        sensorManager.onNonStart = () => deactivateToggle();
+        sensorManager.onNonStart = (i18nMSG) => {
+          if (i18nMSG) {
+            const alert = new AlertNotification("alert");
+            alert.alertWithTimer(i18nMSG);
+          }
+          deactivateToggle();
+        };
         sensorManager.onAllSensorsStopped = () => deactivateToggle();
         sensorManager.onNotEnoughEnergy = () => {
           const alert = new AlertNotification("alert");
@@ -153,11 +168,9 @@ class WideToggleButton {
           if (this.isActive) {
             sensorManager.start();
             backer.deleteBackedupFiles();
-            backer.start();
             console.log(`Sensor logger activated`);
           } else {
             sensorManager.stop();
-            backer.stop();
             backer.deleteBackedupFiles();
             backer.backupToCompanion(true);
             console.log(`Sensor logger deactivated`);
@@ -216,8 +229,8 @@ class AlertNotification {
     if (this.isActive) {
       // Hide old message and change text
       this.toggle();
-      this.setText(message);
     }
+    this.setText(message);
     this.show(true);
     setTimeout(() => {
       this.show(false);

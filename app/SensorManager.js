@@ -275,7 +275,8 @@ class SensorManager {
     if (this.anySensorActive) {
       this.startWatchdog();
     } else {
-      this.onNonStart();
+      console.log("No sensors enabled");
+      this.onNonStart("no_sensors_enabled_alert");
     }
   }
 
@@ -455,7 +456,6 @@ class DataBackupDaemon {
       this.start();
     }, this.frequency);
     console.log("DataBackupDaemon started");
-    this.onBackupEvent();
   }
 
   stop() {
@@ -465,6 +465,7 @@ class DataBackupDaemon {
       console.log("DataBackupDaemon stopped");
     }
     this.onBackupEvent();
+    this.deleteBackedupFiles();
   }
 
   backupToCompanion(includeLatestFile = false) {
@@ -496,6 +497,7 @@ class DataBackupDaemon {
           console.log(`Failed to queue file transfer of ${filename}: ${error}`);
         });
     });
+    this.onBackupEvent();
   }
 
   deleteBackedupFiles() {

@@ -47,4 +47,7 @@ msgid "record_active_l2"
 msgstr "Grabación"
 
 msgid "low_battery_alert"
-msgstr "Batería muy baja"
+msgstr "Batería baja"
+
+msgid "no_sensors_enabled_alert"
+msgstr "Active sensores"

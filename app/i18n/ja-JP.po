@@ -48,3 +48,6 @@ msgstr "ストップ"
 
 msgid "low_battery_alert"
 msgstr "バッテリ少ない"
+
+msgid "no_sensors_enabled_alert"
+msgstr "センサOFF状態"
