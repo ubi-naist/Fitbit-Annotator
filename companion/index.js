@@ -27,7 +27,7 @@ if (isInSimulator) {
   onWakeHandler();
   startSimulatorWaker();
 } else {
-  companion.wakeInterval = 10 * MILLISECONDS_PER_MINUTE;
+  companion.wakeInterval = 5 * MILLISECONDS_PER_MINUTE;
   companion.addEventListener("wakeinterval", onWakeHandler);
 
   if (companion.launchReasons.wokenUp) {

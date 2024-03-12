@@ -336,7 +336,7 @@ class DataLogger {
   static filenameRegex = /^\w+_\d+-\d+\.log\.csv$/;
 
   constructor(loggerName) {
-    this.loggerName = loggerName;
+    this.loggerName = loggerName.slice(8); // fs limitations
     this.logfile = this._createFilename();
     this.initLogFile(this.logfile);
   }
