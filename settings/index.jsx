@@ -30,15 +30,15 @@ function GeneralConfig(props) {
         }
       >
         <Toggle
-          label={`${gettext("logger_hr")}: ${props.settings.recordhr === "true" ? gettext("yes") : gettext("no")}`}
+          label={`${gettext("logger_hr")}: ${props.settings.logheartrate === "true" ? gettext("yes") : gettext("no")}`}
           settingsKey="logheartrate"
         />
         <Toggle
-          label={`${gettext("logger_accel")}: ${props.settings.recordacc === "true" ? gettext("yes") : gettext("no")}`}
+          label={`${gettext("logger_accel")}: ${props.settings.logaccelerometer === "true" ? gettext("yes") : gettext("no")}`}
           settingsKey="logaccelerometer"
         />
         <Toggle
-          label={`${gettext("logger_gyro")}: ${props.settings.recordgyro === "true" ? gettext("yes") : gettext("no")}`}
+          label={`${gettext("logger_gyro")}: ${props.settings.loggyroscope === "true" ? gettext("yes") : gettext("no")}`}
           settingsKey="loggyroscope"
         />
       </Section>
