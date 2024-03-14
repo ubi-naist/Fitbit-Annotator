@@ -1,4 +1,5 @@
 import { gettext } from "i18n";
+import { display } from "display";
 import { SensorManager, DataBackupDaemon, DataLogger } from "./SensorManager";
 import * as document from "document";
 
@@ -169,11 +170,13 @@ class WideToggleButton {
             sensorManager.start();
             backer.deleteBackedupFiles();
             console.log(`Sensor logger activated`);
+            display.autoOff = false;
           } else {
             sensorManager.stop();
             backer.deleteBackedupFiles();
             backer.backupToCompanion(true);
             console.log(`Sensor logger deactivated`);
+            display.autoOff = true;
           }
         };
         break;

@@ -8,7 +8,21 @@
  *     --data-binary "@./test.csv" "https://testapi.local/fileserver.php"
  */
 
+ // https://stackoverflow.com/questions/5501427/php-filesize-mb-kb-conversion
+ function format_bytes($bytes, $precision = 2) {
+    $units = array('B', 'kB', 'MB', 'GB');
+
+    $bytes = max($bytes, 0);
+    $pow = floor(($bytes ? log($bytes) : 0) / log(1000));
+    $pow = min($pow, count($units) - 1);
+
+    $bytes /= pow(1000, $pow);
+
+    return round($bytes, $precision) . ' ' . $units[$pow];
+}
+
 $method = $_SERVER["REQUEST_METHOD"];
+$outputDir = __DIR__."/../uploads";
 
 $response = array(
     "success" => false,
@@ -40,13 +54,15 @@ switch ($method) {
         $filePath = urldecode($matches[3]);
         $pathParts = pathinfo(preg_replace($filter, '', $filePath));
         $filename = $pathParts["basename"];
-        $saved = file_put_contents($filename, $requestBody);
+        $outputFile = "$outputDir/$filename";
+        $saved = file_put_contents($outputFile, $requestBody);
+        $size = format_bytes(filesize($outputFile));
         if ($saved === false) {
             $response["response"] = "Error: failed to save the file";
             $httpCode = 500;
             break;
         }
-        $response["response"] = "$filename uploaded";
+        $response["response"] = "$filename of $size uploaded";
         $response["success"] = true;
         $httpCode = 200;
         break;

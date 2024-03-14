@@ -1,3 +1,4 @@
+import { me as appbit } from "appbit";
 import * as document from "document";
 import {
   ActivityButton,
@@ -5,6 +6,8 @@ import {
   toggleActivities,
 } from "./GUIElements.js";
 import * as simpleSettings from "./device-settings.js";
+
+appbit.appTimeoutEnabled = false;
 
 var activityButtons = {};
 let templates = document.getElementsByClassName("actbutton-section");

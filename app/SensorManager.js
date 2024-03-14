@@ -16,7 +16,7 @@ class Sensor {
   static availableSensors = {
     accelerometer: {
       builder: "accelerometerBuilder",
-      freq: 5, // hertz
+      freq: 40, // hertz
       batch: 150, // samples to get batched per triggered event
     },
     gyroscope: {
@@ -62,10 +62,12 @@ class Sensor {
       console.error("This device doesn't have an Accelerometer");
       return undefined;
     }
-    const device = new Accelerometer({
+    const opts = {
       frequency: this.freq,
       batch: this.batch,
-    });
+    };
+    const device = new Accelerometer();
+    device.setOptions(opts);
     const dataLogger = new DataLogger("accelerometer");
     device.addEventListener("reading", () => {
       const r = device.readings;
@@ -247,7 +249,6 @@ class SensorManager {
       freq = freq || metadata.freq;
       batch = batch || metadata.batch;
       const sensor = new Sensor(type, freq, batch);
-      console.log(`creating ${type}: ${sensor.device}`);
       if (!sensor.device) {
         return;
       }
